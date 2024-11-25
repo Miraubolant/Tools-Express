@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-900 text-gray-100;
+  }
+
+  /* Styles de curseur personnalisés */
+  * {
+    @apply cursor-default;
+  }
+
+  a, button, [role="button"], 
+  input[type="submit"], 
+  input[type="button"], 
+  input[type="reset"],
+  .dropzone,
+  select {
+    @apply cursor-pointer;
+  }
+
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  textarea {
+    @apply cursor-text;
+  }
+
+  button:disabled,
+  [role="button"]:disabled,
+  input:disabled,
+  select:disabled,
+  .disabled {
+    @apply cursor-not-allowed;
+  }
+}
+
+.dropzone {
+  @apply transition-all duration-300;
+}
+
+.dropzone:hover {
+  @apply border-blue-500;
+}
+
+/* Style de curseur pour les éléments redimensionnables */
+.resize {
+  @apply cursor-move;
+}
+
+/* Style de curseur pour les liens et boutons au survol */
+a:hover,
+button:not(:disabled):hover,
+[role="button"]:not(:disabled):hover {
+  @apply cursor-pointer;
+}
+
+/* Style de curseur pour le texte sélectionnable */
+p, h1, h2, h3, h4, h5, h6, span, div {
+  @apply select-text;
+}
