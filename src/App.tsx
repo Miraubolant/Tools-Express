@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Moon, Sun, Image, Files, Zap, GalleryHorizontalEnd, Menu, X, Sparkles, Rocket, Gauge } from 'lucide-react';
+import { Moon, Sun, Image, Files, Zap, GalleryHorizontalEnd, Menu, X, Tags, PenTool } from 'lucide-react';
 import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
 import { JPGExpress } from './pages/JPGExpress';
 import { RenameExpress } from './pages/RenameExpress';
 import { DragExpress } from './pages/DragExpress';
+import { TagExpress } from './pages/TagExpress';
+import { DesignationExpress } from './pages/DesignationExpress';
 
 export function App() {
   const [darkMode, setDarkMode] = useState(() => {
@@ -16,9 +18,6 @@ export function App() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  const toggleMobileMenu = () => setMobileMenuOpen(!mobileMenuOpen);
-  const closeMobileMenu = () => setMobileMenuOpen(false);
-
   useEffect(() => {
     localStorage.setItem('darkMode', darkMode.toString());
     if (darkMode) {
@@ -28,108 +27,87 @@ export function App() {
     }
   }, [darkMode]);
 
-  const NavItem = ({ to, icon: Icon, children }: { to: string; icon: React.ElementType; children: React.ReactNode }) => (
-    <NavLink
-      to={to}
-      onClick={closeMobileMenu}
-      className={({ isActive }) => `
-        flex items-center gap-2 px-3 py-2 rounded-lg transition-all duration-200 whitespace-nowrap
-        ${isActive 
-          ? 'bg-blue-500 text-white' 
-          : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
-      `}
-    >
-      <Icon className="w-5 h-5" />
-      <span>{children}</span>
-    </NavLink>
-  );
-
-  const FeatureCard = ({ 
-    to, 
-    icon: Icon, 
-    title, 
-    description, 
-    features,
-    className = ''
-  }: { 
-    to: string; 
-    icon: React.ElementType; 
-    title: string; 
-    description: string;
-    features: string[];
-    className?: string;
-  }) => (
-    <NavLink 
-      to={to}
-      className={`group bg-white dark:bg-gray-800 rounded-xl p-8 shadow-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300 ${className}`}
-    >
-      <div className="flex items-center gap-4 mb-6">
-        <div className="p-3 bg-blue-500/10 rounded-lg">
-          <Icon className="w-8 h-8 text-blue-500" />
-        </div>
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h2>
-      </div>
-      
-      <div className="space-y-6">
-        <div className="flex items-start gap-3">
-          <Sparkles className="w-5 h-5 text-blue-500 flex-shrink-0 mt-1" />
-          <p className="text-gray-600 dark:text-gray-300">{description}</p>
-        </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Rocket className="w-5 h-5 text-blue-500" />
-            <h3 className="font-semibold text-gray-900 dark:text-white">Fonctionnalités principales</h3>
-          </div>
-          <ul className="space-y-2 text-gray-600 dark:text-gray-300">
-            {features.map((feature, index) => (
-              <li key={index} className="flex items-start gap-2">
-                <span className="text-blue-500 mt-1">•</span>
-                <span>{feature}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="flex items-center gap-2 text-blue-500 group-hover:underline">
-          <Gauge className="w-5 h-5" />
-          <span>Commencer maintenant →</span>
-        </div>
-      </div>
-    </NavLink>
-  );
-
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+      <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-300`}>
         {/* Header */}
         <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
-              <NavLink to="/" className="flex items-center space-x-4 flex-shrink-0">
-                <Zap className="w-8 h-8 sm:w-10 sm:h-10 text-blue-500" />
-                <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
+              <NavLink to="/" className="flex items-center space-x-4">
+                <Zap className="w-8 h-8 text-blue-500" />
+                <span className="text-xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
                   Express Tools
                 </span>
               </NavLink>
 
-              {/* Mobile menu button */}
-              <button
-                onClick={toggleMobileMenu}
-                className="md:hidden p-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                {mobileMenuOpen ? (
-                  <X className="w-6 h-6" />
-                ) : (
-                  <Menu className="w-6 h-6" />
-                )}
-              </button>
+              {/* Navigation desktop */}
+              <nav className="hidden md:flex items-center space-x-1">
+                <NavLink
+                  to="/jpg-express"
+                  className={({ isActive }) => `
+                    flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200
+                    ${isActive 
+                      ? 'bg-blue-500 text-white' 
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
+                >
+                  <Image className="w-5 h-5" />
+                  <span>JPG Express</span>
+                </NavLink>
 
-              {/* Desktop navigation */}
-              <nav className="hidden md:flex items-center space-x-2">
-                <NavItem to="/jpg-express" icon={Image}>JPG Express</NavItem>
-                <NavItem to="/rename-express" icon={Files}>Rename Express</NavItem>
-                <NavItem to="/drag-express" icon={GalleryHorizontalEnd}>Drag Express</NavItem>
+                <NavLink
+                  to="/rename-express"
+                  className={({ isActive }) => `
+                    flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 whitespace-nowrap
+                    ${isActive 
+                      ? 'bg-blue-500 text-white' 
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
+                >
+                  <Files className="w-5 h-5" />
+                  <span>Rename Express</span>
+                </NavLink>
+
+                <NavLink
+                  to="/drag-express"
+                  className={({ isActive }) => `
+                    flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200
+                    ${isActive 
+                      ? 'bg-blue-500 text-white' 
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
+                >
+                  <GalleryHorizontalEnd className="w-5 h-5" />
+                  <span>Drag Express</span>
+                </NavLink>
+
+                <NavLink
+                  to="/tag-express"
+                  className={({ isActive }) => `
+                    flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200
+                    ${isActive 
+                      ? 'bg-blue-500 text-white' 
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
+                >
+                  <Tags className="w-5 h-5" />
+                  <span>Tag Express</span>
+                </NavLink>
+
+                <NavLink
+                  to="/designation-express"
+                  className={({ isActive }) => `
+                    flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200
+                    ${isActive 
+                      ? 'bg-blue-500 text-white' 
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
+                >
+                  <PenTool className="w-5 h-5" />
+                  <span>Designation Express</span>
+                </NavLink>
+
                 <button
                   onClick={() => setDarkMode(!darkMode)}
                   className="p-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
@@ -138,26 +116,102 @@ export function App() {
                   {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
               </nav>
-            </div>
-          </div>
 
-          {/* Mobile navigation */}
-          <div className={`
-            md:hidden transition-all duration-300 ease-in-out overflow-hidden
-            ${mobileMenuOpen ? 'max-h-64' : 'max-h-0'}
-          `}>
-            <nav className="px-4 py-2 space-y-1 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-              <NavItem to="/jpg-express" icon={Image}>JPG Express</NavItem>
-              <NavItem to="/rename-express" icon={Files}>Rename Express</NavItem>
-              <NavItem to="/drag-express" icon={GalleryHorizontalEnd}>Drag Express</NavItem>
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-              >
-                {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                <span>{darkMode ? 'Mode clair' : 'Mode sombre'}</span>
-              </button>
-            </nav>
+              {/* Menu mobile */}
+              <div className="md:hidden flex items-center">
+                <button
+                  onClick={() => setDarkMode(!darkMode)}
+                  className="p-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200 mr-2"
+                >
+                  {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </button>
+                <button
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  className="p-2 rounded-lg text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
+                >
+                  {mobileMenuOpen ? (
+                    <X className="w-6 h-6" />
+                  ) : (
+                    <Menu className="w-6 h-6" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            {/* Menu mobile déroulant */}
+            {mobileMenuOpen && (
+              <div className="md:hidden border-t border-gray-200 dark:border-gray-700 py-2">
+                <NavLink
+                  to="/jpg-express"
+                  className={({ isActive }) => `
+                    flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200
+                    ${isActive 
+                      ? 'bg-blue-500 text-white' 
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Image className="w-5 h-5" />
+                  <span>JPG Express</span>
+                </NavLink>
+
+                <NavLink
+                  to="/rename-express"
+                  className={({ isActive }) => `
+                    flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200
+                    ${isActive 
+                      ? 'bg-blue-500 text-white' 
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Files className="w-5 h-5" />
+                  <span>Rename Express</span>
+                </NavLink>
+
+                <NavLink
+                  to="/drag-express"
+                  className={({ isActive }) => `
+                    flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200
+                    ${isActive 
+                      ? 'bg-blue-500 text-white' 
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <GalleryHorizontalEnd className="w-5 h-5" />
+                  <span>Drag Express</span>
+                </NavLink>
+
+                <NavLink
+                  to="/tag-express"
+                  className={({ isActive }) => `
+                    flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200
+                    ${isActive 
+                      ? 'bg-blue-500 text-white' 
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Tags className="w-5 h-5" />
+                  <span>Tag Express</span>
+                </NavLink>
+
+                <NavLink
+                  to="/designation-express"
+                  className={({ isActive }) => `
+                    flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200
+                    ${isActive 
+                      ? 'bg-blue-500 text-white' 
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <PenTool className="w-5 h-5" />
+                  <span>Designation Express</span>
+                </NavLink>
+              </div>
+            )}
           </div>
         </header>
 
@@ -165,64 +219,112 @@ export function App() {
         <main className="pt-24 px-4 sm:px-6 lg:px-8 pb-12">
           <Routes>
             <Route path="/" element={
-              <div className="max-w-6xl mx-auto space-y-16">
+              <div className="max-w-5xl mx-auto space-y-16">
                 <div className="text-center space-y-6">
                   <div className="flex justify-center">
                     <Zap className="w-24 h-24 text-blue-500 animate-bounce" />
                   </div>
-                  <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
+                  <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
                     Express Tools
                   </h1>
-                  <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-                    Une suite d'outils puissants et intuitifs pour gérer vos fichiers en toute simplicité, directement dans votre navigateur.
+                  <p className="text-xl text-gray-600 dark:text-gray-300">
+                    Des outils simples et rapides pour vos fichiers
                   </p>
                 </div>
 
-                <div className="grid gap-8">
-                  <FeatureCard
+                <div className="grid gap-8 md:grid-cols-2">
+                  {/* JPG Express */}
+                  <NavLink 
                     to="/jpg-express"
-                    icon={Image}
-                    title="JPG Express"
-                    description="Un convertisseur d'images ultra-rapide qui transforme vos fichiers en JPG tout en préservant leur qualité. Simple, efficace et entièrement local."
-                    features={[
-                      "Conversion instantanée par glisser-déposer",
-                      "Support de multiples formats (PNG, WebP, HEIC, etc.)",
-                      "Traitement par lots avec barre de progression",
-                      "Téléchargement groupé des images converties"
-                    ]}
-                  />
+                    className="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300"
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="p-3 bg-blue-500/10 rounded-lg">
+                        <Image className="w-8 h-8 text-blue-500" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">JPG Express</h2>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      Convertissez rapidement vos images en JPG avec une interface intuitive.
+                    </p>
+                    <span className="text-blue-500 group-hover:underline">Commencer la conversion →</span>
+                  </NavLink>
 
-                  <FeatureCard
+                  {/* Rename Express */}
+                  <NavLink 
                     to="/rename-express"
-                    icon={Files}
-                    title="Rename Express"
-                    description="Un outil de renommage en masse qui vous fait gagner du temps. Modifiez les noms de vos fichiers en quelques clics avec une prévisualisation en temps réel."
-                    features={[
-                      "Renommage par lot avec prévisualisation instantanée",
-                      "Rechercher et remplacer dans les noms de fichiers",
-                      "Filtrage intelligent et sélection multiple",
-                      "Support complet des dossiers et sous-dossiers"
-                    ]}
-                  />
+                    className="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300"
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="p-3 bg-blue-500/10 rounded-lg">
+                        <Files className="w-8 h-8 text-blue-500" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Rename Express</h2>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      Renommez facilement vos fichiers en masse avec des outils puissants.
+                    </p>
+                    <span className="text-blue-500 group-hover:underline">Commencer le renommage →</span>
+                  </NavLink>
 
-                  <FeatureCard
+                  {/* Drag Express */}
+                  <NavLink 
                     to="/drag-express"
-                    icon={GalleryHorizontalEnd}
-                    title="Drag Express"
-                    description="Organisez et renommez vos photos par simple glisser-déposer. Une interface visuelle intuitive pour réorganiser vos images comme vous le souhaitez."
-                    features={[
-                      "500 emplacements numérotés pour une organisation parfaite",
-                      "Glissez-déposez pour réorganiser instantanément",
-                      "Prévisualisation en temps réel des modifications",
-                      "Export automatique avec numérotation personnalisée"
-                    ]}
-                  />
+                    className="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300"
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="p-3 bg-blue-500/10 rounded-lg">
+                        <GalleryHorizontalEnd className="w-8 h-8 text-blue-500" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Drag Express</h2>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      Organisez et renommez vos photos par glisser-déposer.
+                    </p>
+                    <span className="text-blue-500 group-hover:underline">Commencer l'organisation →</span>
+                  </NavLink>
+
+                  {/* Tag Express */}
+                  <NavLink 
+                    to="/tag-express"
+                    className="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300"
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="p-3 bg-blue-500/10 rounded-lg">
+                        <Tags className="w-8 h-8 text-blue-500" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Tag Express</h2>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      Générez des étiquettes pour vos lots avec toutes les informations nécessaires.
+                    </p>
+                    <span className="text-blue-500 group-hover:underline">Créer des étiquettes →</span>
+                  </NavLink>
+
+                  {/* Designation Express */}
+                  <NavLink 
+                    to="/designation-express"
+                    className="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-500 transition-all duration-300"
+                  >
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="p-3 bg-blue-500/10 rounded-lg">
+                        <PenTool className="w-8 h-8 text-blue-500" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Designation Express</h2>
+                    </div>
+                    <p className="text-gray-600 dark:text-gray-300 mb-4">
+                      Générez des descriptions professionnelles pour vos lots avec l'aide de l'IA.
+                    </p>
+                    <span className="text-blue-500 group-hover:underline">Générer des descriptions →</span>
+                  </NavLink>
                 </div>
               </div>
             } />
             <Route path="/jpg-express" element={<JPGExpress />} />
             <Route path="/rename-express" element={<RenameExpress />} />
             <Route path="/drag-express" element={<DragExpress />} />
+            <Route path="/tag-express" element={<TagExpress />} />
+            <Route path="/designation-express" element={<DesignationExpress />} />
           </Routes>
         </main>
 
