@@ -29,9 +29,9 @@ export function App() {
         <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
-              <NavLink to="/" className="flex items-center space-x-3">
-                <Zap className="w-8 h-8 text-blue-500" />
-                <span className="text-xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
+              <NavLink to="/" className="flex items-center space-x-4">
+                <Zap className="w-10 h-10 text-blue-500" />
+                <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 bg-clip-text text-transparent">
                   Express Tools
                 </span>
               </NavLink>
@@ -62,14 +62,6 @@ export function App() {
                   <Files className="w-5 h-5" />
                   <span>Rename Express</span>
                 </NavLink>
-
-                <div
-                  className="flex items-center space-x-2 px-4 py-2 rounded-lg text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50"
-                  title="De nouvelles fonctionnalités arrivent bientôt"
-                >
-                  <Rocket className="w-5 h-5 animate-bounce" />
-                  <span>Plus d'outils à venir</span>
-                </div>
 
                 <button
                   onClick={() => setDarkMode(!darkMode)}
