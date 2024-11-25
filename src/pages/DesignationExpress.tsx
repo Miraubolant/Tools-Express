@@ -106,7 +106,7 @@ export function DesignationExpress() {
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
             Mots-clés du lot
           </label>
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               value={input}
@@ -124,6 +124,7 @@ export function DesignationExpress() {
               icon={Sparkles}
               onClick={generateSuggestions}
               disabled={isLoading || !input.trim()}
+              className="w-full sm:w-auto whitespace-nowrap"
             >
               {isLoading ? 'Génération...' : 'Générer'}
             </Button>
