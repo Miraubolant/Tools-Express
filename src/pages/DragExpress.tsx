@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { GalleryHorizontalEnd, Download, Trash2, FolderUp, ChevronLeft, ChevronRight, ArrowUp, ArrowUpDown, Copy, Info, MousePointerClick } from 'lucide-react';
+import { GalleryHorizontalEnd, Download, Trash2, FolderUp, ChevronLeft, ChevronRight, ArrowUp, ArrowDown, ArrowUp as ArrowUpIcon, Copy, Info, MousePointerClick } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { DropZone } from '../components/ui/DropZone';
 import JSZip from 'jszip';
@@ -33,7 +33,6 @@ export function DragExpress() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [editingPosition, setEditingPosition] = useState<string | null>(null);
   const [prefix, setPrefix] = useState('');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [editValue, setEditValue] = useState('');
   const [showTooltip, setShowTooltip] = useState(true);
 
@@ -48,7 +47,6 @@ export function DragExpress() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Masquer le tooltip après 5 secondes
   useEffect(() => {
     if (showTooltip) {
       const timer = setTimeout(() => {
@@ -80,7 +78,7 @@ export function DragExpress() {
       s.id === slot.id 
         ? { 
             ...s, 
-            customPosition: position,
+            customPosition: position || s.position,
             bisNumber: bis
           }
         : s
@@ -210,24 +208,20 @@ export function DragExpress() {
       const targetIndex = newSlots.findIndex(s => s.id === targetSlot.id);
 
       if (sourceIndex !== -1 && targetIndex !== -1) {
+        // Swap files and previews only, keep positions
         const tempFile = newSlots[targetIndex].file;
         const tempPreview = newSlots[targetIndex].preview;
-        const tempCustomPosition = newSlots[targetIndex].customPosition;
 
         newSlots[targetIndex] = {
           ...newSlots[targetIndex],
           file: newSlots[sourceIndex].file,
           preview: newSlots[sourceIndex].preview,
-          customPosition: newSlots[sourceIndex].customPosition,
-          bisNumber: 0
         };
 
         newSlots[sourceIndex] = {
           ...newSlots[sourceIndex],
           file: tempFile,
           preview: tempPreview,
-          customPosition: tempCustomPosition,
-          bisNumber: 0
         };
 
         setSlots(newSlots);
@@ -251,22 +245,15 @@ export function DragExpress() {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const newSlots = [...slots];
-    const slotIndex = newSlots.findIndex(s => s.id === slot.id);
-    
-    if (slotIndex !== -1) {
-      const preview = URL.createObjectURL(file);
-      newSlots[slotIndex] = {
-        ...newSlots[slotIndex],
-        file,
-        preview,
-        bisNumber: 0
-      };
-      setSlots(newSlots);
-    }
+    const preview = URL.createObjectURL(file);
+    setSlots(prev => prev.map(s => 
+      s.id === slot.id 
+        ? { ...s, file, preview, bisNumber: 0 }
+        : s
+    ));
   };
 
-  const handleDownload = async () => {
+ const handleDownload = async () => {
     if (isDownloading) return;
     setIsDownloading(true);
     document.body.style.cursor = 'wait';
@@ -280,8 +267,8 @@ export function DragExpress() {
           const extension = slot.file.name.split('.').pop() || 'jpg';
           const position = slot.customPosition || slot.position;
           const fileName = prefix 
-            ? `${prefix}_${position}${slot.bisNumber ? '_' + slot.bisNumber : ''}.${extension}`
-            : `${position}${slot.bisNumber ? '_' + slot.bisNumber : ''}.${extension}`;
+            ? `${prefix}-${position}${slot.bisNumber ? '-' + slot.bisNumber : ''}.${extension}`
+            : `${position}${slot.bisNumber ? '-' + slot.bisNumber : ''}.${extension}`;
           zip.file(fileName, slot.file);
         }
       }
@@ -326,9 +313,7 @@ export function DragExpress() {
     setPrefix('');
   };
 
-  const toggleSortOrder = () => {
-    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
-    
+  const sortAscending = () => {
     setSlots(prev => {
       const filledSlots = prev.filter(slot => slot.file);
       const emptySlots = prev.filter(slot => !slot.file);
@@ -336,7 +321,22 @@ export function DragExpress() {
       const sortedFilledSlots = [...filledSlots].sort((a, b) => {
         const posA = a.customPosition || a.position;
         const posB = b.customPosition || b.position;
-        return sortOrder === 'asc' ? posB - posA : posA - posB;
+        return posA - posB;
+      });
+      
+      return [...sortedFilledSlots, ...emptySlots];
+    });
+  };
+
+  const sortDescending = () => {
+    setSlots(prev => {
+      const filledSlots = prev.filter(slot => slot.file);
+      const emptySlots = prev.filter(slot => !slot.file);
+      
+      const sortedFilledSlots = [...filledSlots].sort((a, b) => {
+        const posA = a.customPosition || a.position;
+        const posB = b.customPosition || b.position;
+        return posB - posA;
       });
       
       return [...sortedFilledSlots, ...emptySlots];
@@ -353,7 +353,7 @@ export function DragExpress() {
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3">
           <GalleryHorizontalEnd className="w-10 h-10 text-emerald-500" />
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Organisation Photos</h1>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Tri Express</h1>
         </div>
         <p className="text-lg text-gray-600 dark:text-gray-300">
           Réorganisez vos photos par glisser-déposer
@@ -385,15 +385,24 @@ export function DragExpress() {
           <div className="text-sm text-gray-600 dark:text-gray-300">
             {filledSlotsCount} photo{filledSlotsCount > 1 ? 's' : ''} sur {TOTAL_SLOTS}
           </div>
-          <Button
-            variant="secondary"
-            icon={ArrowUpDown}
-            onClick={toggleSortOrder}
-            disabled={filledSlotsCount === 0}
-            title={`Trier par ordre ${sortOrder === 'asc' ? 'croissant' : 'décroissant'}`}
-          >
-            {sortOrder === 'asc' ? 'Tri croissant' : 'Tri décroissant'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              icon={ArrowUp}
+              onClick={sortAscending}
+              disabled={filledSlotsCount === 0}
+            >
+              Tri croissant
+            </Button>
+            <Button
+              variant="secondary"
+              icon={ArrowDown}
+              onClick={sortDescending}
+              disabled={filledSlotsCount === 0}
+            >
+              Tri décroissant
+            </Button>
+          </div>
           <Button
             variant="secondary"
             icon={Trash2}
@@ -452,7 +461,7 @@ export function DragExpress() {
                     className="w-full h-full object-cover cursor-move"
                     draggable={false}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/60">
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80">
                     {/* Bouton Bis */}
                     <button
                       onClick={(e) => {
@@ -465,9 +474,9 @@ export function DragExpress() {
                       <Copy className="w-5 h-5 group-hover:scale-110 transition-transform" />
                     </button>
 
-                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                    <div className="absolute bottom-0 left-0 p-4">
                       {editingPosition === slot.id ? (
-                        <div className="relative flex items-center justify-center">
+                        <div className="relative flex items-center">
                           <input
                             type="text"
                             value={editValue}
@@ -483,8 +492,8 @@ export function DragExpress() {
                               }
                             }}
                             className="
-                              w-40 bg-black/70 text-white text-3xl font-bold text-center 
-                              rounded-lg px-4 py-2 border-2 border-white/30
+                              w-32 bg-black/70 text-white text-xl font-bold text-center 
+                              rounded-lg px-3 py-1.5 border-2 border-white/30
                               focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50
                               placeholder-white/50 transition-all duration-200
                               hover:border-white/50
@@ -496,8 +505,7 @@ export function DragExpress() {
                         </div>
                       ) : (
                         <div 
-                          className="flex items-center gap-2 group/number cursor-pointer
-                            hover:bg-white/10 rounded-lg px-3 py-1 transition-all duration-200"
+                          className="group/number inline-flex items-center"
                           onClick={(e) => {
                             e.stopPropagation();
                             startEditing(slot);
@@ -507,16 +515,19 @@ export function DragExpress() {
                             startEditing(slot);
                           }}
                         >
-                          <span className="text-3xl font-bold text-white drop-shadow-lg group-hover/number:scale-105 transition-transform duration-200">
-                            {slot.customPosition || slot.position}
-                            {slot.bisNumber > 0 && (
-                              <span className="text-emerald-400 ml-1">{`_${slot.bisNumber}`}</span>
-                            )}
-                          </span>
-                          <MousePointerClick className="w-5 h-5 text-white/70 group-hover/number:text-white transition-colors" />
-                          <span className="text-sm text-white/70 group-hover/number:text-white transition-colors">
-                            Double-clic pour modifier
-                          </span>
+                          <div className="
+                            flex items-center px-3 py-1.5 rounded-lg
+                            bg-black/50 hover:bg-black/70 transition-all duration-200
+                            cursor-pointer group-hover/number:ring-2 group-hover/number:ring-white/30
+                          ">
+                            <span className="text-xl font-bold text-white drop-shadow-lg">
+                              {slot.customPosition || slot.position}
+                              {slot.bisNumber > 0 && (
+                                <span className="text-emerald-400 ml-1">{`_${slot.bisNumber}`}</span>
+                              )}
+                            </span>
+                            <MousePointerClick className="w-3.5 h-3.5 text-white/70 ml-2 group-hover/number:text-white transition-colors" />
+                          </div>
                         </div>
                       )}
                     </div>
@@ -575,7 +586,7 @@ export function DragExpress() {
           className="fixed bottom-8 right-8 p-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2"
           aria-label="Retour en haut"
         >
-          <ArrowUp className="w-6 h-6" />
+          <ArrowUpIcon className="w-6 h-6" />
         </button>
       )}
     </div>
