@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, NavLink } from 'react-router-dom';
-import { Moon, Sun, Image, Files, GalleryHorizontalEnd, Menu, X, ArrowUp } from 'lucide-react';
+import { Moon, Sun, Image, Files, GalleryHorizontalEnd, Menu, X, ArrowUp, Tags } from 'lucide-react';
 import { JPGExpress } from './pages/JPGExpress';
 import { RenameExpress } from './pages/RenameExpress';
 import { DragExpress } from './pages/DragExpress';
@@ -52,41 +52,30 @@ export function App() {
         <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-b border-gray-200 dark:border-gray-700">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
-              <NavLink to="/" className="flex items-center space-x-4">
-                <img src={LogoCheops} alt="Logo Cheops" className="w-10 h-10" />
-                <span className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
-                  Outils Cheops
-                </span>
+              <NavLink 
+                to="/" 
+                className="group flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
+                <div className="relative w-8 h-8 transform group-hover:scale-110 transition-transform duration-300">
+                  <img 
+                    src={LogoCheops} 
+                    alt="Logo Cheops" 
+                    className="w-full h-full object-contain" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-lg font-bold bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
+                    Outils Cheops
+                  </span>
+                  <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium -mt-1">
+                    Gestion de fichiers simplifiée
+                  </span>
+                </div>
               </NavLink>
 
               {/* Navigation desktop */}
               <nav className="hidden md:flex items-center space-x-4">
-                <NavLink
-                  to="/jpg-express"
-                  className={({ isActive }) => `
-                    flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200
-                    ${isActive 
-                      ? 'bg-emerald-500 text-white' 
-                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
-                  `}
-                >
-                  <Image className="w-5 h-5" />
-                  <span>Conversion Images</span>
-                </NavLink>
-
-                <NavLink
-                  to="/rename-express"
-                  className={({ isActive }) => `
-                    flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 whitespace-nowrap
-                    ${isActive 
-                      ? 'bg-emerald-500 text-white' 
-                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
-                  `}
-                >
-                  <Files className="w-5 h-5" />
-                  <span>Renommage Fichiers</span>
-                </NavLink>
-
                 <NavLink
                   to="/drag-express"
                   className={({ isActive }) => `
@@ -101,7 +90,20 @@ export function App() {
                 </NavLink>
 
                 <NavLink
-                  to="/tag-express"
+                  to="/rename-express"
+                  className={({ isActive }) => `
+                    flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200
+                    ${isActive 
+                      ? 'bg-emerald-500 text-white' 
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
+                >
+                  <Files className="w-5 h-5" />
+                  <span>Renommage Fichiers</span>
+                </NavLink>
+
+                <NavLink
+                  to="/jpg-express"
                   className={({ isActive }) => `
                     flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200
                     ${isActive 
@@ -110,6 +112,19 @@ export function App() {
                   `}
                 >
                   <Image className="w-5 h-5" />
+                  <span>Conversion JPG</span>
+                </NavLink>
+
+                <NavLink
+                  to="/tag-express"
+                  className={({ isActive }) => `
+                    flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200
+                    ${isActive 
+                      ? 'bg-emerald-500 text-white' 
+                      : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700'}
+                  `}
+                >
+                  <Tags className="w-5 h-5" />
                   <span>Étiquettes Lots</span>
                 </NavLink>
 
@@ -147,7 +162,7 @@ export function App() {
             {mobileMenuOpen && (
               <div className="md:hidden border-t border-gray-200 dark:border-gray-700 py-2">
                 <NavLink
-                  to="/jpg-express"
+                  to="/drag-express"
                   className={({ isActive }) => `
                     flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200
                     ${isActive 
@@ -156,8 +171,8 @@ export function App() {
                   `}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Image className="w-5 h-5" />
-                  <span>Conversion Images</span>
+                  <GalleryHorizontalEnd className="w-5 h-5" />
+                  <span>Tri Visuel</span>
                 </NavLink>
 
                 <NavLink
@@ -175,7 +190,7 @@ export function App() {
                 </NavLink>
 
                 <NavLink
-                  to="/drag-express"
+                  to="/jpg-express"
                   className={({ isActive }) => `
                     flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-200
                     ${isActive 
@@ -184,8 +199,8 @@ export function App() {
                   `}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <GalleryHorizontalEnd className="w-5 h-5" />
-                  <span>Organisation Photos</span>
+                  <Image className="w-5 h-5" />
+                  <span>Conversion JPG</span>
                 </NavLink>
 
                 <NavLink
@@ -198,7 +213,7 @@ export function App() {
                   `}
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Image className="w-5 h-5" />
+                  <Tags className="w-5 h-5" />
                   <span>Étiquettes Lots</span>
                 </NavLink>
               </div>
@@ -218,27 +233,32 @@ export function App() {
                   <h1 className="text-5xl font-bold bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
                     Outils Cheops
                   </h1>
-                  <p className="text-xl text-gray-600 dark:text-gray-300">
-                    Des outils simples et rapides pour vos fichiers
-                  </p>
+                  <div className="max-w-3xl mx-auto">
+                    <p className="text-xl text-gray-600 dark:text-gray-300">
+                      Suite d'outils pour le tri, le renommage et la conversion de vos fichiers. 
+                      Optimisé pour les commissaires-priseurs, photographes et catalogueurs.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-2">
-                  {/* Conversion Images */}
+                  {/* Tri Visuel */}
                   <NavLink 
-                    to="/jpg-express"
+                    to="/drag-express"
                     className="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all duration-300"
                   >
                     <div className="flex items-center gap-4 mb-4">
                       <div className="p-3 bg-emerald-500/10 rounded-lg">
-                        <Image className="w-8 h-8 text-emerald-500" />
+                        <GalleryHorizontalEnd className="w-8 h-8 text-emerald-500" />
                       </div>
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Conversion Images</h2>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Tri Visuel</h2>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300 mb-4">
-                      Convertissez rapidement vos images en JPG avec une interface intuitive.
+                      Interface intuitive pour organiser et numéroter vos photos par glisser-déposer. 
+                      Modifiez les numéros facilement, ajoutez des numéros bis et exportez le tout 
+                      avec un nommage cohérent.
                     </p>
-                    <span className="text-emerald-500 group-hover:underline">Commencer la conversion →</span>
+                    <span className="text-emerald-500 group-hover:underline">Commencer le tri →</span>
                   </NavLink>
 
                   {/* Renommage Fichiers */}
@@ -253,26 +273,29 @@ export function App() {
                       <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Renommage Fichiers</h2>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300 mb-4">
-                      Renommez facilement vos fichiers en masse avec des outils puissants.
+                      Renommez des centaines de fichiers en quelques clics. Remplacez des textes spécifiques, 
+                      ajoutez des préfixes ou suffixes, et prévisualisez les changements avant de les appliquer.
                     </p>
                     <span className="text-emerald-500 group-hover:underline">Commencer le renommage →</span>
                   </NavLink>
 
-                  {/* Organisation Photos */}
+                  {/* Conversion JPG */}
                   <NavLink 
-                    to="/drag-express"
+                    to="/jpg-express"
                     className="group bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all duration-300"
                   >
                     <div className="flex items-center gap-4 mb-4">
                       <div className="p-3 bg-emerald-500/10 rounded-lg">
-                        <GalleryHorizontalEnd className="w-8 h-8 text-emerald-500" />
+                        <Image className="w-8 h-8 text-emerald-500" />
                       </div>
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Organisation Photos</h2>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Conversion JPG</h2>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300 mb-4">
-                      Organisez et renommez vos photos par glisser-déposer.
+                      Convertissez instantanément vos images en JPG. Compatible avec de nombreux formats 
+                      (PNG, WEBP, HEIC, etc.), préserve la qualité originale et traite les lots d'images 
+                      rapidement.
                     </p>
-                    <span className="text-emerald-500 group-hover:underline">Commencer l'organisation →</span>
+                    <span className="text-emerald-500 group-hover:underline">Commencer la conversion →</span>
                   </NavLink>
 
                   {/* Étiquettes Lots */}
@@ -282,12 +305,14 @@ export function App() {
                   >
                     <div className="flex items-center gap-4 mb-4">
                       <div className="p-3 bg-emerald-500/10 rounded-lg">
-                        <Image className="w-8 h-8 text-emerald-500" />
+                        <Tags className="w-8 h-8 text-emerald-500" />
                       </div>
                       <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Étiquettes Lots</h2>
                     </div>
                     <p className="text-gray-600 dark:text-gray-300 mb-4">
-                      Générez des étiquettes pour vos lots avec toutes les informations nécessaires.
+                      Générez des étiquettes professionnelles pour vos lots. Personnalisez avec votre logo, 
+                      ajoutez des informations de vente et créez des PDF prêts à imprimer avec numérotation 
+                      automatique.
                     </p>
                     <span className="text-emerald-500 group-hover:underline">Créer des étiquettes →</span>
                   </NavLink>

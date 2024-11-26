@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Image, Download, Upload, Trash2 } from 'lucide-react';
+import { Image, Download, Upload, Trash2, FolderUp } from 'lucide-react';
 import { DropZone } from '../components/ui/DropZone';
 import { Button } from '../components/ui/Button';
 import { ProgressBar } from '../components/ui/ProgressBar';
@@ -166,7 +166,7 @@ export function JPGExpress() {
       <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-8 border border-gray-200 dark:border-gray-700 shadow-lg">
         <DropZone
           onDrop={onDrop}
-          icon={Upload}
+          icon={FolderUp}
           accept={acceptedFormats}
           message="Déposez vos images ici pour les convertir en JPG"
           activeMessage="Déposez ici..."
@@ -176,62 +176,62 @@ export function JPGExpress() {
         </div>
       </div>
 
-      {(files.length > 0 || converting || conversionComplete) && (
-        <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg space-y-6">
-          <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
-              Images ({currentFileIndex + 1}/{files.length})
-            </h3>
-            <div className="flex gap-3">
-              <Button
-                variant="secondary"
-                icon={Trash2}
-                onClick={clearAll}
-                disabled={converting}
-              >
-                Tout effacer
-              </Button>
-              <Button
-                variant="primary"
-                icon={Download}
-                onClick={handleDownloadAll}
-                disabled={converting || files.length === 0}
-              >
-                Télécharger en ZIP
-              </Button>
+      <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg space-y-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+            Images {files.length > 0 && `(${currentFileIndex + 1}/${files.length})`}
+          </h3>
+          <div className="flex gap-3">
+            <Button
+              variant="secondary"
+              icon={Trash2}
+              onClick={clearAll}
+              disabled={converting || files.length === 0}
+            >
+              Tout effacer
+            </Button>
+            <Button
+              variant="primary"
+              icon={Download}
+              onClick={handleDownloadAll}
+              disabled={converting || files.length === 0}
+            >
+              Télécharger en ZIP
+            </Button>
+          </div>
+        </div>
+
+        {(converting || conversionComplete) && files.length > 0 && (
+          <div className="space-y-4">
+            <ProgressBar progress={progress} />
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
+              <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3">
+                <div className="text-gray-500 dark:text-gray-400 mb-1">Progression</div>
+                <div className="text-gray-900 dark:text-white font-medium">
+                  {Math.round(progress)}% • {currentFileIndex + 1}/{files.length}
+                </div>
+              </div>
+              <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3">
+                <div className="text-gray-500 dark:text-gray-400 mb-1">Temps écoulé</div>
+                <div className="text-gray-900 dark:text-white font-medium">
+                  {formatTime(conversionTime)}
+                </div>
+              </div>
+              {converting && (
+                <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3">
+                  <div className="text-gray-500 dark:text-gray-400 mb-1">Temps restant estimé</div>
+                  <div className="text-gray-900 dark:text-white font-medium">
+                    {estimateRemainingTime()}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
+        )}
 
-          {(converting || conversionComplete) && (
-            <div className="space-y-4">
-              <ProgressBar progress={progress} />
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm">
-                <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3">
-                  <div className="text-gray-500 dark:text-gray-400 mb-1">Progression</div>
-                  <div className="text-gray-900 dark:text-white font-medium">
-                    {Math.round(progress)}% • {currentFileIndex + 1}/{files.length}
-                  </div>
-                </div>
-                <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3">
-                  <div className="text-gray-500 dark:text-gray-400 mb-1">Temps écoulé</div>
-                  <div className="text-gray-900 dark:text-white font-medium">
-                    {formatTime(conversionTime)}
-                  </div>
-                </div>
-                {converting && (
-                  <div className="bg-gray-100 dark:bg-gray-700/50 rounded-lg p-3">
-                    <div className="text-gray-500 dark:text-gray-400 mb-1">Temps restant estimé</div>
-                    <div className="text-gray-900 dark:text-white font-medium">
-                      {estimateRemainingTime()}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {displayedFiles.map((file) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {files.length > 0 ? (
+            displayedFiles.map((file) => (
               <div
                 key={file.id}
                 className="relative aspect-square rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-700 group"
@@ -248,32 +248,42 @@ export function JPGExpress() {
                   <Download className="w-6 h-6 text-white" />
                 </button>
               </div>
-            ))}
-          </div>
-
-          {totalPages > 1 && (
-            <div className="flex justify-center gap-2">
-              <Button
-                variant="secondary"
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-              >
-                Précédent
-              </Button>
-              <span className="flex items-center px-4 text-gray-600 dark:text-gray-300">
-                Page {currentPage} sur {totalPages}
-              </span>
-              <Button
-                variant="secondary"
-                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                disabled={currentPage === totalPages}
-              >
-                Suivant
-              </Button>
+            ))
+          ) : (
+            <div className="col-span-full py-12">
+              <div className="flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+                <Image className="w-12 h-12 mb-4 text-gray-400 dark:text-gray-600" />
+                <p className="text-lg font-medium mb-1">Aucune image</p>
+                <p className="text-sm text-center">
+                  Déposez vos images ci-dessus pour commencer la conversion en JPG
+                </p>
+              </div>
             </div>
           )}
         </div>
-      )}
+
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              disabled={currentPage === 1}
+            >
+              Précédent
+            </Button>
+            <span className="flex items-center px-4 text-gray-600 dark:text-gray-300">
+              Page {currentPage} sur {totalPages}
+            </span>
+            <Button
+              variant="secondary"
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Suivant
+            </Button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
