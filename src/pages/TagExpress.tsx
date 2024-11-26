@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tags, Upload, X, AlertCircle, Printer, Download } from 'lucide-react';
+import { Tags, Upload, X, AlertCircle, Download } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { jsPDF } from 'jspdf';
 
@@ -23,7 +23,6 @@ export function TagExpress() {
     logo: null
   });
   const [labelCount, setLabelCount] = useState<number>(24);
-  const [showPreview, setShowPreview] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [lotRange, setLotRange] = useState<LotRange>({
     start: 1,
@@ -302,21 +301,13 @@ export function TagExpress() {
       </div>
 
       {/* Actions */}
-      <div className="flex justify-center gap-4">
-        <Button
-          variant="primary"
-          icon={Printer}
-          onClick={() => setShowPreview(true)}
-          className="px-8"
-        >
-          Aperçu
-        </Button>
+      <div className="flex justify-center">
         <Button
           variant="primary"
           icon={Download}
           onClick={generatePDF}
           disabled={isGenerating}
-          className="px-8 bg-emerald-500 hover:bg-emerald-600"
+          className="px-8"
         >
           {isGenerating ? 'Génération...' : 'Télécharger en PDF'}
         </Button>

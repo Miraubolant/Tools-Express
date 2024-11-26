@@ -54,6 +54,29 @@
   @apply border-emerald-500;
 }
 
+/* Styles pour le glisser-déposer */
+.drag-target {
+  @apply relative;
+}
+
+.drag-target.drag-over {
+  @apply ring-2 ring-emerald-500 ring-offset-2 scale-105 transition-all duration-200;
+}
+
+.drag-target.drag-over::after {
+  content: '';
+  @apply absolute inset-0 bg-emerald-500/10 pointer-events-none;
+}
+
+/* Style pour masquer l'image fantôme par défaut */
+[draggable="true"] img {
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
+
 /* Resize cursor */
 .resize {
   @apply cursor-move;

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { GalleryHorizontalEnd, Download, Trash2, FolderUp, ChevronLeft, ChevronRight, ArrowUp, Edit2, X } from 'lucide-react';
+import { GalleryHorizontalEnd, Download, Trash2, FolderUp, ChevronLeft, ChevronRight, ArrowUp, ArrowUpDown, Copy, Info, MousePointerClick } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { DropZone } from '../components/ui/DropZone';
 import JSZip from 'jszip';
@@ -10,6 +10,7 @@ interface ImageSlot {
   preview: string | null;
   position: number;
   customPosition?: number;
+  bisNumber?: number;
 }
 
 const TOTAL_SLOTS = 500;
@@ -21,7 +22,8 @@ export function DragExpress() {
       id: `slot-${i + 1}`,
       file: null,
       preview: null,
-      position: i + 1
+      position: i + 1,
+      bisNumber: 0
     }))
   );
   const [currentPage, setCurrentPage] = useState(1);
@@ -31,9 +33,11 @@ export function DragExpress() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [editingPosition, setEditingPosition] = useState<string | null>(null);
   const [prefix, setPrefix] = useState('');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [editValue, setEditValue] = useState('');
+  const [showTooltip, setShowTooltip] = useState(true);
 
   const filledSlotsCount = slots.filter(slot => slot.file !== null).length;
-  const emptySlotCount = TOTAL_SLOTS - filledSlotsCount;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,6 +48,16 @@ export function DragExpress() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Masquer le tooltip après 5 secondes
+  useEffect(() => {
+    if (showTooltip) {
+      const timer = setTimeout(() => {
+        setShowTooltip(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showTooltip]);
+
   const scrollToTop = () => {
     window.scrollTo({
       top: 0,
@@ -51,17 +65,45 @@ export function DragExpress() {
     });
   };
 
-  const handlePositionEdit = (slot: ImageSlot, newPosition: string) => {
-    const numPosition = parseInt(newPosition, 10);
-    if (!isNaN(numPosition) && numPosition > 0 && numPosition <= TOTAL_SLOTS) {
-      setSlots(prev => prev.map(s => 
-        s.id === slot.id ? { ...s, customPosition: numPosition } : s
-      ));
-    }
+  const handlePositionChange = (slot: ImageSlot, value: string) => {
+    const parts = value.split('_');
+    let position = parseInt(parts[0], 10);
+    let bis = parts.length > 1 ? parseInt(parts[1], 10) : 0;
+
+    position = isNaN(position) ? 0 : position;
+    bis = isNaN(bis) ? 0 : bis;
+
+    position = Math.max(0, Math.min(position, TOTAL_SLOTS));
+    bis = Math.max(0, Math.min(bis, 12));
+
+    setSlots(prev => prev.map(s => 
+      s.id === slot.id 
+        ? { 
+            ...s, 
+            customPosition: position,
+            bisNumber: bis
+          }
+        : s
+    ));
   };
 
-  const handlePositionEditComplete = () => {
-    setEditingPosition(null);
+  const incrementBis = (slot: ImageSlot) => {
+    setSlots(prev => prev.map(s => {
+      if (s.id === slot.id) {
+        const currentBis = s.bisNumber || 0;
+        return {
+          ...s,
+          bisNumber: currentBis >= 12 ? 0 : currentBis + 1
+        };
+      }
+      return s;
+    }));
+  };
+
+  const startEditing = (slot: ImageSlot) => {
+    if (!slot.file) return;
+    setEditingPosition(slot.id);
+    setEditValue(`${slot.customPosition || slot.position}${slot.bisNumber ? '_' + slot.bisNumber : ''}`);
   };
 
   const handleFolderDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -88,7 +130,8 @@ export function DragExpress() {
           newSlots[slotIndex] = {
             ...newSlots[slotIndex],
             file,
-            preview
+            preview,
+            bisNumber: 0
           };
         }
       }
@@ -106,6 +149,32 @@ export function DragExpress() {
     setDraggedSlot(slot);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', slot.id);
+
+    if (slot.preview) {
+      const dragImage = new Image();
+      dragImage.src = slot.preview;
+      dragImage.style.width = '100px';
+      dragImage.style.height = '100px';
+      dragImage.style.objectFit = 'cover';
+      dragImage.style.opacity = '0.7';
+      dragImage.style.borderRadius = '8px';
+      
+      dragImage.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 100;
+        canvas.height = 100;
+        const ctx = canvas.getContext('2d');
+        
+        if (ctx) {
+          ctx.beginPath();
+          ctx.roundRect(0, 0, 100, 100, 8);
+          ctx.clip();
+          ctx.drawImage(dragImage, 0, 0, 100, 100);
+          
+          e.dataTransfer.setDragImage(canvas, 50, 50);
+        }
+      };
+    }
   };
 
   const handleDragEnd = () => {
@@ -115,37 +184,64 @@ export function DragExpress() {
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
+    
+    if (e.currentTarget.classList.contains('drag-target')) {
+      e.currentTarget.classList.add('drag-over');
+    }
   };
 
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
+    if (e.currentTarget.classList.contains('drag-target')) {
+      e.currentTarget.classList.remove('drag-over');
+    }
   };
 
-  const handleDrop = (e: React.DragEvent, targetSlot: ImageSlot) => {
+  const handleDrop = async (e: React.DragEvent, targetSlot: ImageSlot) => {
     e.preventDefault();
-    if (!draggedSlot) return;
+    
+    if (e.currentTarget.classList.contains('drag-target')) {
+      e.currentTarget.classList.remove('drag-over');
+    }
 
-    const newSlots = [...slots];
-    const sourceIndex = newSlots.findIndex(s => s.id === draggedSlot.id);
-    const targetIndex = newSlots.findIndex(s => s.id === targetSlot.id);
+    if (draggedSlot) {
+      const newSlots = [...slots];
+      const sourceIndex = newSlots.findIndex(s => s.id === draggedSlot.id);
+      const targetIndex = newSlots.findIndex(s => s.id === targetSlot.id);
 
-    if (sourceIndex !== -1 && targetIndex !== -1) {
-      const tempFile = newSlots[targetIndex].file;
-      const tempPreview = newSlots[targetIndex].preview;
+      if (sourceIndex !== -1 && targetIndex !== -1) {
+        const tempFile = newSlots[targetIndex].file;
+        const tempPreview = newSlots[targetIndex].preview;
+        const tempCustomPosition = newSlots[targetIndex].customPosition;
 
-      newSlots[targetIndex] = {
-        ...newSlots[targetIndex],
-        file: newSlots[sourceIndex].file,
-        preview: newSlots[sourceIndex].preview
-      };
+        newSlots[targetIndex] = {
+          ...newSlots[targetIndex],
+          file: newSlots[sourceIndex].file,
+          preview: newSlots[sourceIndex].preview,
+          customPosition: newSlots[sourceIndex].customPosition,
+          bisNumber: 0
+        };
 
-      newSlots[sourceIndex] = {
-        ...newSlots[sourceIndex],
-        file: tempFile,
-        preview: tempPreview
-      };
+        newSlots[sourceIndex] = {
+          ...newSlots[sourceIndex],
+          file: tempFile,
+          preview: tempPreview,
+          customPosition: tempCustomPosition,
+          bisNumber: 0
+        };
 
-      setSlots(newSlots);
+        setSlots(newSlots);
+      }
+    } else {
+      const files = Array.from(e.dataTransfer.files);
+      if (files.length > 0 && files[0].type.startsWith('image/')) {
+        const preview = URL.createObjectURL(files[0]);
+        setSlots(prev => prev.map(slot => 
+          slot.id === targetSlot.id 
+            ? { ...slot, file: files[0], preview, bisNumber: 0 }
+            : slot
+        ));
+      }
     }
 
     setDraggedSlot(null);
@@ -163,7 +259,8 @@ export function DragExpress() {
       newSlots[slotIndex] = {
         ...newSlots[slotIndex],
         file,
-        preview
+        preview,
+        bisNumber: 0
       };
       setSlots(newSlots);
     }
@@ -183,8 +280,8 @@ export function DragExpress() {
           const extension = slot.file.name.split('.').pop() || 'jpg';
           const position = slot.customPosition || slot.position;
           const fileName = prefix 
-            ? `${prefix}_${position}.${extension}`
-            : `${position}.${extension}`;
+            ? `${prefix}_${position}${slot.bisNumber ? '_' + slot.bisNumber : ''}.${extension}`
+            : `${position}${slot.bisNumber ? '_' + slot.bisNumber : ''}.${extension}`;
           zip.file(fileName, slot.file);
         }
       }
@@ -218,13 +315,32 @@ export function DragExpress() {
       }
     });
 
-    setSlots(slots.map(slot => ({
-      ...slot,
+    setSlots(Array.from({ length: TOTAL_SLOTS }, (_, i) => ({
+      id: `slot-${i + 1}`,
       file: null,
       preview: null,
-      customPosition: undefined
+      position: i + 1,
+      customPosition: undefined,
+      bisNumber: 0
     })));
     setPrefix('');
+  };
+
+  const toggleSortOrder = () => {
+    setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc');
+    
+    setSlots(prev => {
+      const filledSlots = prev.filter(slot => slot.file);
+      const emptySlots = prev.filter(slot => !slot.file);
+      
+      const sortedFilledSlots = [...filledSlots].sort((a, b) => {
+        const posA = a.customPosition || a.position;
+        const posB = b.customPosition || b.position;
+        return sortOrder === 'asc' ? posB - posA : posA - posB;
+      });
+      
+      return [...sortedFilledSlots, ...emptySlots];
+    });
   };
 
   const startIndex = (currentPage - 1) * SLOTS_PER_PAGE;
@@ -237,7 +353,7 @@ export function DragExpress() {
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3">
           <GalleryHorizontalEnd className="w-10 h-10 text-emerald-500" />
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Drag Express</h1>
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Organisation Photos</h1>
         </div>
         <p className="text-lg text-gray-600 dark:text-gray-300">
           Réorganisez vos photos par glisser-déposer
@@ -248,7 +364,7 @@ export function DragExpress() {
         <DropZone
           onDrop={handleFolderDrop}
           icon={FolderUp}
-          message={`Déposez un dossier d'images ici (${emptySlotCount} emplacements disponibles)`}
+          message={`Déposez un dossier d'images ici (${TOTAL_SLOTS - filledSlotsCount} emplacements disponibles)`}
           activeMessage="Déposez le dossier ici..."
           className={isProcessingFolder ? 'pointer-events-none opacity-50' : ''}
         />
@@ -256,29 +372,28 @@ export function DragExpress() {
 
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div className="w-full sm:w-auto">
-          <div className="relative">
-            <input
-              type="text"
-              value={prefix}
-              onChange={(e) => setPrefix(e.target.value)}
-              placeholder="Préfixe pour les noms de fichiers..."
-              className="w-full sm:w-80 h-11 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-emerald-500"
-            />
-            {prefix && (
-              <button
-                onClick={() => setPrefix('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            )}
-          </div>
+          <input
+            type="text"
+            value={prefix}
+            onChange={(e) => setPrefix(e.target.value)}
+            placeholder="Préfixe pour les noms de fichiers..."
+            className="w-full sm:w-80 h-11 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-emerald-500"
+          />
         </div>
         
         <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
           <div className="text-sm text-gray-600 dark:text-gray-300">
             {filledSlotsCount} photo{filledSlotsCount > 1 ? 's' : ''} sur {TOTAL_SLOTS}
           </div>
+          <Button
+            variant="secondary"
+            icon={ArrowUpDown}
+            onClick={toggleSortOrder}
+            disabled={filledSlotsCount === 0}
+            title={`Trier par ordre ${sortOrder === 'asc' ? 'croissant' : 'décroissant'}`}
+          >
+            {sortOrder === 'asc' ? 'Tri croissant' : 'Tri décroissant'}
+          </Button>
           <Button
             variant="secondary"
             icon={Trash2}
@@ -299,6 +414,16 @@ export function DragExpress() {
         </div>
       </div>
 
+      {showTooltip && filledSlotsCount > 0 && (
+        <div className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 p-4 rounded-lg flex items-center gap-2">
+          <Info className="w-5 h-5 flex-shrink-0" />
+          <p>
+            Double-cliquez sur le numéro d'une photo pour le modifier. 
+            Utilisez le format "numéro_bis" (ex: 12_3) pour ajouter un numéro bis.
+          </p>
+        </div>
+      )}
+
       <div className="space-y-4">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
           {currentSlots.map((slot) => (
@@ -306,7 +431,7 @@ export function DragExpress() {
               key={slot.id}
               className={`
                 relative aspect-square rounded-xl overflow-hidden
-                border-2 transition-all duration-200 transform
+                border-2 transition-all duration-200 transform drag-target
                 ${slot.file 
                   ? 'border-transparent shadow-lg hover:shadow-xl hover:scale-[1.02]' 
                   : 'border-dashed border-gray-300 dark:border-gray-700 hover:border-emerald-500'}
@@ -328,38 +453,74 @@ export function DragExpress() {
                     draggable={false}
                   />
                   <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/60">
-                    <div className="absolute bottom-0 left-0 right-0 p-4 flex items-center justify-between">
-                      <span className="text-3xl font-bold text-white drop-shadow-lg">
-                        {slot.customPosition || slot.position}
-                      </span>
-                      <button
-                        onClick={() => setEditingPosition(slot.id)}
-                        className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                      >
-                        <Edit2 className="w-4 h-4 text-white" />
-                      </button>
+                    {/* Bouton Bis */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        incrementBis(slot);
+                      }}
+                      className="absolute top-4 right-4 p-2 rounded-lg bg-black/50 hover:bg-black/70 text-white transition-all duration-200 group"
+                      title="Incrémenter le numéro bis"
+                    >
+                      <Copy className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    </button>
+
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      {editingPosition === slot.id ? (
+                        <div className="relative flex items-center justify-center">
+                          <input
+                            type="text"
+                            value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onBlur={() => {
+                              handlePositionChange(slot, editValue);
+                              setEditingPosition(null);
+                            }}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter') {
+                                handlePositionChange(slot, editValue);
+                                setEditingPosition(null);
+                              }
+                            }}
+                            className="
+                              w-40 bg-black/70 text-white text-3xl font-bold text-center 
+                              rounded-lg px-4 py-2 border-2 border-white/30
+                              focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/50
+                              placeholder-white/50 transition-all duration-200
+                              hover:border-white/50
+                            "
+                            placeholder="N°_bis"
+                            autoFocus
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </div>
+                      ) : (
+                        <div 
+                          className="flex items-center gap-2 group/number cursor-pointer
+                            hover:bg-white/10 rounded-lg px-3 py-1 transition-all duration-200"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startEditing(slot);
+                          }}
+                          onDoubleClick={(e) => {
+                            e.stopPropagation();
+                            startEditing(slot);
+                          }}
+                        >
+                          <span className="text-3xl font-bold text-white drop-shadow-lg group-hover/number:scale-105 transition-transform duration-200">
+                            {slot.customPosition || slot.position}
+                            {slot.bisNumber > 0 && (
+                              <span className="text-emerald-400 ml-1">{`_${slot.bisNumber}`}</span>
+                            )}
+                          </span>
+                          <MousePointerClick className="w-5 h-5 text-white/70 group-hover/number:text-white transition-colors" />
+                          <span className="text-sm text-white/70 group-hover/number:text-white transition-colors">
+                            Double-clic pour modifier
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  {editingPosition === slot.id && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/70">
-                      <div 
-                        className="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-lg"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <input
-                          type="number"
-                          min="1"
-                          max={TOTAL_SLOTS}
-                          value={slot.customPosition || slot.position}
-                          onChange={(e) => handlePositionEdit(slot, e.target.value)}
-                          onBlur={handlePositionEditComplete}
-                          onKeyDown={(e) => e.key === 'Enter' && handlePositionEditComplete()}
-                          className="w-24 px-3 py-2 text-center text-lg font-medium text-gray-900 dark:text-white bg-transparent border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-emerald-500"
-                          autoFocus
-                        />
-                      </div>
-                    </div>
-                  )}
                 </>
               ) : (
                 <label
