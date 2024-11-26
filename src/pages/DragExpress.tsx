@@ -130,7 +130,6 @@ export function DragExpress() {
     const targetIndex = newSlots.findIndex(s => s.id === targetSlot.id);
 
     if (sourceIndex !== -1 && targetIndex !== -1) {
-      // Échanger uniquement les fichiers et aperçus, pas les positions
       const tempFile = newSlots[targetIndex].file;
       const tempPreview = newSlots[targetIndex].preview;
 
@@ -237,7 +236,7 @@ export function DragExpress() {
     <div className="max-w-7xl mx-auto space-y-8">
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3">
-          <GalleryHorizontalEnd className="w-10 h-10 text-blue-500" />
+          <GalleryHorizontalEnd className="w-10 h-10 text-emerald-500" />
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Drag Express</h1>
         </div>
         <p className="text-lg text-gray-600 dark:text-gray-300">
@@ -263,7 +262,7 @@ export function DragExpress() {
               value={prefix}
               onChange={(e) => setPrefix(e.target.value)}
               placeholder="Préfixe pour les noms de fichiers..."
-              className="w-full sm:w-80 h-11 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500"
+              className="w-full sm:w-80 h-11 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-emerald-500"
             />
             {prefix && (
               <button
@@ -310,7 +309,7 @@ export function DragExpress() {
                 border-2 transition-all duration-200 transform
                 ${slot.file 
                   ? 'border-transparent shadow-lg hover:shadow-xl hover:scale-[1.02]' 
-                  : 'border-dashed border-gray-300 dark:border-gray-700 hover:border-blue-500'}
+                  : 'border-dashed border-gray-300 dark:border-gray-700 hover:border-emerald-500'}
                 ${draggedSlot?.id === slot.id ? 'opacity-50 scale-95' : 'opacity-100'}
               `}
               draggable={slot.file !== null}
@@ -355,7 +354,7 @@ export function DragExpress() {
                           onChange={(e) => handlePositionEdit(slot, e.target.value)}
                           onBlur={handlePositionEditComplete}
                           onKeyDown={(e) => e.key === 'Enter' && handlePositionEditComplete()}
-                          className="w-24 px-3 py-2 text-center text-lg font-medium text-gray-900 dark:text-white bg-transparent border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500"
+                          className="w-24 px-3 py-2 text-center text-lg font-medium text-gray-900 dark:text-white bg-transparent border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-emerald-500"
                           autoFocus
                         />
                       </div>
@@ -412,7 +411,7 @@ export function DragExpress() {
       {showScrollTop && (
         <button
           onClick={scrollToTop}
-          className="fixed bottom-8 right-8 p-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+          className="fixed bottom-8 right-8 p-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2"
           aria-label="Retour en haut"
         >
           <ArrowUp className="w-6 h-6" />

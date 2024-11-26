@@ -3,11 +3,16 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-gray-900 text-gray-100;
+  :root {
+    --color-primary: 16, 185, 129;
+    --color-secondary: 20, 184, 166;
   }
 
-  /* Styles de curseur personnalisés */
+  body {
+    @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
+  }
+
+  /* Cursor styles */
   * {
     @apply cursor-default;
   }
@@ -46,22 +51,22 @@
 }
 
 .dropzone:hover {
-  @apply border-blue-500;
+  @apply border-emerald-500;
 }
 
-/* Style de curseur pour les éléments redimensionnables */
+/* Resize cursor */
 .resize {
   @apply cursor-move;
 }
 
-/* Style de curseur pour les liens et boutons au survol */
+/* Hover states */
 a:hover,
 button:not(:disabled):hover,
 [role="button"]:not(:disabled):hover {
   @apply cursor-pointer;
 }
 
-/* Style de curseur pour le texte sélectionnable */
+/* Text selection */
 p, h1, h2, h3, h4, h5, h6, span, div {
   @apply select-text;
 }

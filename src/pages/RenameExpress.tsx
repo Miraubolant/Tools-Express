@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react';
-import { Files, Search, Download, ArrowUpDown, Wand2, FileText, FileEdit, FileType, Scale, Calendar, Check } from 'lucide-react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Files, Search, Download, ArrowUpDown, Wand2, FileText, FileEdit, FileType, Scale, Calendar, Check, ArrowUp } from 'lucide-react';
 import { DropZone } from '../components/ui/DropZone';
 import { Button } from '../components/ui/Button';
 import JSZip from 'jszip';
@@ -21,6 +21,23 @@ export function RenameExpress() {
   const [replaceText, setReplaceText] = useState('');
   const [withText, setWithText] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const newFiles = acceptedFiles.map(file => ({
@@ -139,7 +156,7 @@ export function RenameExpress() {
     <div className="max-w-6xl mx-auto space-y-8">
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3">
-          <Files className="w-10 h-10 text-blue-500" />
+          <Files className="w-10 h-10 text-emerald-500" />
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Rename Express</h1>
         </div>
         <p className="text-lg text-gray-600 dark:text-gray-300">
@@ -167,7 +184,7 @@ export function RenameExpress() {
                   placeholder="Filtrer les fichiers par nom original..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full h-11 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full h-11 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-emerald-500"
                 />
               </div>
               <Button
@@ -189,14 +206,14 @@ export function RenameExpress() {
                   placeholder="Caractères à remplacer..."
                   value={replaceText}
                   onChange={(e) => setReplaceText(e.target.value)}
-                  className="w-full h-11 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full h-11 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-emerald-500"
                 />
                 <input
                   type="text"
                   placeholder="Remplacer par..."
                   value={withText}
                   onChange={(e) => setWithText(e.target.value)}
-                  className="w-full h-11 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                  className="w-full h-11 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-emerald-500"
                 />
                 <Button
                   variant="primary"
@@ -220,38 +237,38 @@ export function RenameExpress() {
                         type="checkbox"
                         checked={selectedFiles.size === filteredFiles.length && filteredFiles.length > 0}
                         onChange={toggleSelectAll}
-                        className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 transition-all checked:bg-blue-500 checked:border-0 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50"
+                        className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 transition-all checked:bg-emerald-500 checked:border-0 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50"
                       />
                       <Check className="absolute h-4 w-4 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
                     </div>
                   </th>
                   <th className="px-4 py-3 text-left">
                     <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-blue-500" />
+                      <FileText className="w-4 h-4 text-emerald-500" />
                       <span className="text-sm font-bold text-white">Nom actuel</span>
                     </div>
                   </th>
                   <th className="px-4 py-3 text-left">
                     <div className="flex items-center gap-2">
-                      <FileEdit className="w-4 h-4 text-blue-500" />
+                      <FileEdit className="w-4 h-4 text-emerald-500" />
                       <span className="text-sm font-bold text-white">Nouveau nom</span>
                     </div>
                   </th>
                   <th className="px-4 py-3 text-left">
                     <div className="flex items-center gap-2">
-                      <FileType className="w-4 h-4 text-blue-500" />
+                      <FileType className="w-4 h-4 text-emerald-500" />
                       <span className="text-sm font-bold text-white">Format</span>
                     </div>
                   </th>
                   <th className="px-4 py-3 text-left">
                     <div className="flex items-center gap-2">
-                      <Scale className="w-4 h-4 text-blue-500" />
+                      <Scale className="w-4 h-4 text-emerald-500" />
                       <span className="text-sm font-bold text-white">Taille</span>
                     </div>
                   </th>
                   <th className="px-4 py-3 text-left last:rounded-tr-lg">
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4 text-blue-500" />
+                      <Calendar className="w-4 h-4 text-emerald-500" />
                       <span className="text-sm font-bold text-white">Date de modification</span>
                     </div>
                   </th>
@@ -273,7 +290,7 @@ export function RenameExpress() {
                           type="checkbox"
                           checked={selectedFiles.has(file.id)}
                           onChange={() => toggleFileSelection(file.id)}
-                          className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 transition-all checked:bg-blue-500 checked:border-0 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50"
+                          className="peer h-5 w-5 cursor-pointer appearance-none rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 transition-all checked:bg-emerald-500 checked:border-0 disabled:cursor-not-allowed disabled:border-gray-200 disabled:bg-gray-50"
                         />
                         <Check className="absolute h-4 w-4 text-white opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none" />
                       </div>
@@ -295,6 +312,16 @@ export function RenameExpress() {
             </table>
           </div>
         </div>
+      )}
+
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 p-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-lg transition-all duration-300 transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2"
+          aria-label="Retour en haut"
+        >
+          <ArrowUp className="w-6 h-6" />
+        </button>
       )}
     </div>
   );

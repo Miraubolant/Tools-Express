@@ -170,7 +170,7 @@ export function TagExpress() {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3">
-          <Tags className="w-10 h-10 text-blue-500" />
+          <Tags className="w-10 h-10 text-emerald-500" />
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Tag Express</h1>
         </div>
         <p className="text-lg text-gray-600 dark:text-gray-300">
@@ -182,7 +182,7 @@ export function TagExpress() {
         {/* Informations de l'étude */}
         <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg space-y-6">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-blue-500" />
+            <AlertCircle className="w-5 h-5 text-emerald-500" />
             Informations de l'étude (optionnelles)
           </h3>
           
@@ -195,7 +195,7 @@ export function TagExpress() {
                 type="text"
                 value={studyInfo.name}
                 onChange={(e) => setStudyInfo(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="Ex: Étude de Maître Dupont"
               />
             </div>
@@ -208,7 +208,7 @@ export function TagExpress() {
                 type="text"
                 value={studyInfo.orderNumber}
                 onChange={(e) => setStudyInfo(prev => ({ ...prev, orderNumber: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="Ex: 2024-001"
               />
             </div>
@@ -221,7 +221,7 @@ export function TagExpress() {
                 type="text"
                 value={studyInfo.saleName}
                 onChange={(e) => setStudyInfo(prev => ({ ...prev, saleName: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="Ex: Succession Durand"
               />
             </div>
@@ -236,7 +236,7 @@ export function TagExpress() {
                   min="1"
                   value={lotRange.start}
                   onChange={(e) => handleRangeChange('start', e.target.value)}
-                  className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   placeholder="Début"
                 />
                 <span className="text-gray-500">à</span>
@@ -245,7 +245,7 @@ export function TagExpress() {
                   min={lotRange.start}
                   value={lotRange.end}
                   onChange={(e) => handleRangeChange('end', e.target.value)}
-                  className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   placeholder="Fin"
                 />
               </div>
@@ -279,10 +279,10 @@ export function TagExpress() {
                 </button>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center w-64 h-64 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl hover:border-blue-500 transition-colors bg-white/50 dark:bg-gray-800/50">
-                <Upload className="w-12 h-12 text-gray-400 dark:text-gray-600 mb-4" />
+              <div className="flex flex-col items-center justify-center w-64 h-64 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl hover:border-emerald-500 transition-colors bg-white/50 dark:bg-gray-800/50">
+                <Upload className="w-12 h-12 text-emerald-500 dark:text-emerald-400 mb-4" />
                 <label className="cursor-pointer text-center">
-                  <span className="text-sm text-blue-500 hover:text-blue-600 font-medium">
+                  <span className="text-sm text-emerald-500 hover:text-emerald-600 font-medium">
                     Choisir un logo
                   </span>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
@@ -316,7 +316,7 @@ export function TagExpress() {
           icon={Download}
           onClick={generatePDF}
           disabled={isGenerating}
-          className="px-8 bg-blue-500 hover:bg-blue-600"
+          className="px-8 bg-emerald-500 hover:bg-emerald-600"
         >
           {isGenerating ? 'Génération...' : 'Télécharger en PDF'}
         </Button>

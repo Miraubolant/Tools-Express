@@ -93,7 +93,7 @@ export function DesignationExpress() {
     <div className="max-w-4xl mx-auto space-y-8">
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3">
-          <PenTool className="w-10 h-10 text-blue-500" />
+          <PenTool className="w-10 h-10 text-emerald-500" />
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Designation Express</h1>
         </div>
         <p className="text-lg text-gray-600 dark:text-gray-300">
@@ -112,7 +112,7 @@ export function DesignationExpress() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ex: tableau, huile sur toile, paysage, XIXe siècle..."
-              className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !isLoading && input.trim()) {
                   generateSuggestions();
@@ -157,11 +157,11 @@ export function DesignationExpress() {
                   </p>
                   <button
                     onClick={() => copyToClipboard(suggestion.text, suggestion.id)}
-                    className="absolute top-4 right-4 p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-white dark:hover:bg-gray-600 transition-all"
+                    className="absolute top-4 right-4 p-2 rounded-lg text-gray-500 dark:text-gray-400 hover:text-emerald-500 dark:hover:text-emerald-400 hover:bg-white dark:hover:bg-gray-600 transition-all"
                     title="Copier la description"
                   >
                     {copiedId === suggestion.id ? (
-                      <Check className="w-5 h-5 text-green-500" />
+                      <Check className="w-5 h-5 text-emerald-500" />
                     ) : (
                       <Copy className="w-5 h-5" />
                     )}

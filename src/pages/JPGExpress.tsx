@@ -155,7 +155,7 @@ export function JPGExpress() {
     <div className="max-w-5xl mx-auto space-y-8">
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center gap-3">
-          <Image className="w-10 h-10 text-blue-500" />
+          <Image className="w-10 h-10 text-emerald-500" />
           <h1 className="text-4xl font-bold text-gray-900 dark:text-white">JPG Express</h1>
         </div>
         <p className="text-lg text-gray-600 dark:text-gray-300">

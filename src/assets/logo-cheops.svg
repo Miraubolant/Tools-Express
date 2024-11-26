@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="500" height="500" viewBox="0 0 500 500" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <g>
+        <!-- Rectangle vert clair -->
+        <rect x="0" y="0" width="200" height="200" fill="#96D4B9"/>
+        <!-- Rectangle vert vif -->
+        <rect x="200" y="0" width="300" height="200" fill="#8CC63F"/>
+        <!-- Rectangle bleu -->
+        <rect x="0" y="200" width="200" height="300" fill="#39B7B3"/>
+        <!-- Cercle blanc -->
+        <circle cx="350" cy="350" r="50" fill="#FFFFFF"/>
+    </g>
+</svg>
