@@ -99,12 +99,13 @@ export function ContactForm() {
         />
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex justify-center">
         <Button
           type="submit"
           variant="primary"
           icon={submitted ? CheckCircle : Send}
           disabled={submitted}
+          className="px-8"
         >
           {submitted ? 'Suggestion envoyée !' : 'Envoyer la suggestion'}
         </Button>

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Files, Search, Download, ArrowUpDown, Wand2, FileText, FileEdit, FileType, Scale, Calendar, Check, ArrowUp, FolderUp } from 'lucide-react';
+import { Files, Search, Download, ArrowUpDown, Wand2, FileText, FileEdit, FileType, Scale, Calendar, Check, ArrowUp, FolderUp, Trash2 } from 'lucide-react';
 import { DropZone } from '../components/ui/DropZone';
 import { Button } from '../components/ui/Button';
 import JSZip from 'jszip';
@@ -37,6 +37,14 @@ export function RenameExpress() {
       top: 0,
       behavior: 'smooth'
     });
+  };
+
+  const clearAll = () => {
+    setFiles([]);
+    setSelectedFiles(new Set());
+    setSearchQuery('');
+    setReplaceText('');
+    setWithText('');
   };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
@@ -186,6 +194,15 @@ export function RenameExpress() {
                 className="w-full h-11 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-emerald-500"
               />
             </div>
+            <Button
+              variant="secondary"
+              icon={Trash2}
+              onClick={clearAll}
+              disabled={files.length === 0}
+              className="h-11"
+            >
+              Tout effacer
+            </Button>
             <Button
               variant="primary"
               icon={Download}
