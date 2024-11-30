@@ -87,10 +87,13 @@ export function RenameExpress() {
       if (searchQuery && !file.originalName.toLowerCase().includes(searchQuery.toLowerCase())) {
         return file;
       }
+
+      // Échapper les caractères spéciaux pour qu'ils soient traités littéralement
+      const escapedReplaceText = replaceText.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
       
       return {
         ...file,
-        newName: file.newName.replace(new RegExp(replaceText, 'g'), withText)
+        newName: file.newName.replace(new RegExp(escapedReplaceText, 'g'), withText)
       };
     }));
   };

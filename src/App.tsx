@@ -20,7 +20,7 @@ export function App() {
                 <div className="flex justify-center">
                   <img src={LogoCheops} alt="Logo Cheops" className="w-24 h-24" />
                 </div>
-                <h1 className="text-5xl font-bold bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
+                <h1 className="text-5xl font-bold bg-gradient-to-r from-[#8CD4B9] via-[#9FD066] to-[#3E9DD6] text-transparent bg-clip-text bg-[length:200%_auto] animate-gradient-x">
                   Outils Cheops
                 </h1>
                 <div className="max-w-3xl mx-auto">

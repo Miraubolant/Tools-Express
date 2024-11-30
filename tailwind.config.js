@@ -33,11 +33,20 @@ export default {
       animation: {
         'spin-slow': 'spin 3s linear infinite',
         'fadeIn': 'fadeIn 0.2s ease-out forwards',
+        'gradient-x': 'gradient-x 15s ease infinite',
       },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0', transform: 'translateY(-10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'gradient-x': {
+          '0%, 100%': {
+            'background-position': '0% 50%',
+          },
+          '50%': {
+            'background-position': '100% 50%',
+          },
         },
       },
     },
