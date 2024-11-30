@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tags, Upload, X, AlertCircle, Download } from 'lucide-react';
+import { Tags, Upload, X, AlertCircle, Download, Hash } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { jsPDF } from 'jspdf';
 
