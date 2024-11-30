@@ -42,38 +42,42 @@ export function useDragExpress() {
     ));
   };
 
-  const renumberSlots = () => {
+  const compareSlots = (a: ImageSlot, b: ImageSlot): number => {
+    const posA = a.customPosition || a.position;
+    const posB = b.customPosition || b.position;
+    
+    // Si les positions principales sont différentes, on les compare
+    if (posA !== posB) {
+      return posA - posB;
+    }
+    
+    // Si les positions sont identiques, on compare les numéros bis
+    const bisA = a.bisNumber || 0;
+    const bisB = b.bisNumber || 0;
+    return bisA - bisB;
+  };
+
+  const sortAscending = () => {
     setSlots(prev => {
-      // Créer une copie des slots pour la manipulation
-      const newSlots = [...prev];
+      const filledSlots = prev.filter(slot => slot.file);
+      const emptySlots = prev.filter(slot => !slot.file);
       
-      // Trouver le premier slot non vide
-      let nextNumber = 1;
+      // Trier les slots avec photos en tenant compte des numéros bis
+      const sortedFilledSlots = [...filledSlots].sort(compareSlots);
       
-      // Parcourir tous les slots dans l'ordre actuel
-      for (let i = 0; i < newSlots.length; i++) {
-        const slot = newSlots[i];
-        
-        // Si le slot a un fichier et pas de numéro bis
-        if (slot.file && !slot.bisNumber) {
-          // Mettre à jour la position avec le prochain numéro disponible
-          slot.position = nextNumber;
-          slot.customPosition = nextNumber;
-          nextNumber++;
-        }
-        // Si le slot a un fichier et un numéro bis, ne pas le modifier
-        else if (slot.file && slot.bisNumber) {
-          // Conserver la position actuelle
-          continue;
-        }
-        // Si le slot est vide, conserver sa position originale
-        else {
-          slot.position = i + 1;
-          slot.customPosition = i + 1;
-        }
-      }
+      return [...sortedFilledSlots, ...emptySlots];
+    });
+  };
+
+  const sortDescending = () => {
+    setSlots(prev => {
+      const filledSlots = prev.filter(slot => slot.file);
+      const emptySlots = prev.filter(slot => !slot.file);
       
-      return newSlots;
+      // Trier les slots avec photos en tenant compte des numéros bis
+      const sortedFilledSlots = [...filledSlots].sort((a, b) => compareSlots(b, a));
+      
+      return [...sortedFilledSlots, ...emptySlots];
     });
   };
 
@@ -83,11 +87,7 @@ export function useDragExpress() {
       
       // Trier les slots avec des fichiers par leur numéro affiché
       const filledSlots = newSlots.filter(slot => slot.file !== null);
-      filledSlots.sort((a, b) => {
-        const posA = a.position;
-        const posB = b.position;
-        return posA - posB;
-      });
+      filledSlots.sort(compareSlots);
       
       // Garder une trace du prochain numéro disponible
       let nextNumber = 1;
@@ -160,8 +160,8 @@ export function useDragExpress() {
           const extension = slot.file.name.split('.').pop() || 'jpg';
           const position = slot.customPosition || slot.position;
           const fileName = prefix 
-            ? `${prefix}-${position}${slot.bisNumber ? '-' + slot.bisNumber : ''}.${extension}`
-            : `${position}${slot.bisNumber ? '-' + slot.bisNumber : ''}.${extension}`;
+            ? `${prefix}-${position}${slot.bisNumber ? '_' + slot.bisNumber : ''}.${extension}`
+            : `${position}${slot.bisNumber ? '_' + slot.bisNumber : ''}.${extension}`;
           zip.file(fileName, slot.file);
         }
       }
@@ -204,36 +204,6 @@ export function useDragExpress() {
       bisNumber: 0
     })));
     setPrefix('');
-  };
-
-  const sortAscending = () => {
-    setSlots(prev => {
-      const filledSlots = prev.filter(slot => slot.file);
-      const emptySlots = prev.filter(slot => !slot.file);
-      
-      const sortedFilledSlots = [...filledSlots].sort((a, b) => {
-        const posA = a.customPosition || a.position;
-        const posB = b.customPosition || b.position;
-        return posA - posB;
-      });
-      
-      return [...sortedFilledSlots, ...emptySlots];
-    });
-  };
-
-  const sortDescending = () => {
-    setSlots(prev => {
-      const filledSlots = prev.filter(slot => slot.file);
-      const emptySlots = prev.filter(slot => !slot.file);
-      
-      const sortedFilledSlots = [...filledSlots].sort((a, b) => {
-        const posA = a.customPosition || a.position;
-        const posB = b.customPosition || b.position;
-        return posB - posA;
-      });
-      
-      return [...sortedFilledSlots, ...emptySlots];
-    });
   };
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
@@ -288,7 +258,6 @@ export function useDragExpress() {
     editValue,
     setEditValue,
     handlePositionChange,
-    renumberSlots,
     renumberByDisplayNumber,
     incrementBis,
     handleDownload,
