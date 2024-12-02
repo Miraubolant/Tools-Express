@@ -144,7 +144,7 @@ export function ActionPanel({
             disabled={filledSlotsCount === 0}
             className="h-10 text-sm"
           >
-            Effacer
+             Tout Effacer
           </Button>
           <Button
             variant="primary"

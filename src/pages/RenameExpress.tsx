@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Files, Search, Download, ArrowUpDown, Wand2, FileText, FileEdit, FileType, Scale, Calendar, Check, ArrowUp, FolderUp, Trash2 } from 'lucide-react';
+import { Files, Search, Download, ArrowUpDown, Wand2, FileText, FileEdit, FileType, Scale, Calendar, Check, ArrowUp, FolderUp, Trash2, X } from 'lucide-react';
 import { DropZone } from '../components/ui/DropZone';
 import { Button } from '../components/ui/Button';
 import JSZip from 'jszip';
@@ -111,8 +111,6 @@ export function RenameExpress() {
         (!searchQuery || file.originalName.toLowerCase().includes(searchQuery.toLowerCase()))
       );
 
-      // Ajouter les fichiers au ZIP avec une taille de chunk optimisée
-      const chunkSize = 1024 * 1024; // 1MB chunks
       for (const fileItem of filesToDownload) {
         zip.file(fileItem.newName, fileItem.file, { 
           compression: "STORE",
@@ -126,7 +124,6 @@ export function RenameExpress() {
         compressionOptions: { level: 3 },
         streamFiles: true
       }, (metadata) => {
-        // La progression est disponible ici si nécessaire
         console.log(`Progression: ${metadata.percent.toFixed(0)}%`);
       });
 
@@ -188,14 +185,22 @@ export function RenameExpress() {
         <div className="grid grid-cols-1 gap-6">
           {/* Filtre et actions */}
           <div className="flex gap-4 items-center">
-            <div className="flex-1">
+            <div className="flex-1 relative">
               <input
                 type="text"
                 placeholder="Filtrer les fichiers par nom original..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-emerald-500"
+                className="w-full h-11 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 pr-10 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-emerald-500"
               />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                >
+                  <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                </button>
+              )}
             </div>
             <Button
               variant="secondary"
@@ -220,20 +225,40 @@ export function RenameExpress() {
           {/* Outils de renommage */}
           <div className="flex items-center gap-4">
             <div className="flex-1 grid grid-cols-[1fr,1fr,auto] gap-4">
-              <input
-                type="text"
-                placeholder="Caractères à remplacer..."
-                value={replaceText}
-                onChange={(e) => setReplaceText(e.target.value)}
-                className="w-full h-11 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-emerald-500"
-              />
-              <input
-                type="text"
-                placeholder="Remplacer par..."
-                value={withText}
-                onChange={(e) => setWithText(e.target.value)}
-                className="w-full h-11 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-emerald-500"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Caractères à remplacer..."
+                  value={replaceText}
+                  onChange={(e) => setReplaceText(e.target.value)}
+                  className="w-full h-11 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 pr-10 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-emerald-500"
+                />
+                {replaceText && (
+                  <button
+                    onClick={() => setReplaceText('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                  >
+                    <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  </button>
+                )}
+              </div>
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Remplacer par..."
+                  value={withText}
+                  onChange={(e) => setWithText(e.target.value)}
+                  className="w-full h-11 bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg px-4 pr-10 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-emerald-500"
+                />
+                {withText && (
+                  <button
+                    onClick={() => setWithText('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-full transition-colors"
+                  >
+                    <X className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  </button>
+                )}
+              </div>
               <Button
                 variant="primary"
                 icon={Wand2}
