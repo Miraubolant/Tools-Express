@@ -7,7 +7,6 @@ import { DragExpress } from './pages/DragExpress';
 import { TagExpress } from './pages/TagExpress';
 import { ContactForm } from './components/ui/ContactForm';
 import { GalleryHorizontalEnd, Files, Image, Tags } from 'lucide-react';
-import LogoCheops from './assets/logo-cheops.svg';
 
 export function App() {
   return (
@@ -18,7 +17,7 @@ export function App() {
             <div className="max-w-7xl mx-auto space-y-16">
               <div className="text-center space-y-6">
                 <div className="flex justify-center">
-                  <img src={LogoCheops} alt="Logo Cheops" className="w-24 h-24" />
+                  <img src="https://i.imgur.com/VxI9d5K.png" alt="Logo Cheops" className="w-24 h-24" />
                 </div>
                 <h1 className="text-5xl font-bold bg-gradient-to-r from-[#8CD4B9] via-[#9FD066] to-[#3E9DD6] text-transparent bg-clip-text bg-[length:200%_auto] animate-gradient-x">
                   Outils Cheops

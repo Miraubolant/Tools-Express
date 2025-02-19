@@ -1,5 +1,4 @@
 import React from 'react';
-import LogoCheops from '../../assets/logo-cheops.svg';
 
 export function Footer() {
   return (
@@ -17,8 +16,8 @@ export function Footer() {
               rel="noopener noreferrer" 
               className="flex items-center gap-2 text-emerald-500 hover:text-emerald-600 transition-colors"
             >
-              <img src={LogoCheops} alt="Logo 3PI" className="w-5 h-5" />
-              <span className="font-medium">3PI</span>
+              <img src="https://i.imgur.com/VxI9d5K.png" alt="Logo 3PI" className="w-5 h-5" />
+              <span className="font-medium"></span>
             </a>
           </div>
         </div>

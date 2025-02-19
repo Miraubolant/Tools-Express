@@ -1,7 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { Moon, Sun, Image, Files, GalleryHorizontalEnd, Menu, X, Tags } from 'lucide-react';
-import LogoCheops from '../../assets/logo-cheops.svg';
 
 interface NavigationProps {
   darkMode: boolean;
@@ -19,22 +18,11 @@ export function Navigation({ darkMode, setDarkMode, mobileMenuOpen, setMobileMen
             to="/" 
             className="group flex items-center space-x-3 px-3 py-2 rounded-lg transition-all duration-300 hover:bg-gray-100 dark:hover:bg-gray-700"
           >
-            <div className="relative w-8 h-8 transform group-hover:scale-110 transition-transform duration-300">
-              <img 
-                src={LogoCheops} 
-                alt="Logo Cheops" 
-                className="w-full h-full object-contain" 
-              />
-              <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 to-teal-500/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-lg font-bold bg-gradient-to-r from-emerald-500 to-teal-500 bg-clip-text text-transparent">
-                Outils Cheops
-              </span>
-              <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium -mt-1">
-                Gestion de fichiers simplifiée
-              </span>
-            </div>
+            <img 
+              src="https://i.imgur.com/E2PlGVF.png" 
+              alt="Logo Cheops" 
+              className="h-8 object-contain" 
+            />
           </NavLink>
 
           {/* Navigation desktop */}
