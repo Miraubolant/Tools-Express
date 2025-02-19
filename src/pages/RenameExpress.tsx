@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Files, Search, Download, ArrowUpDown, Wand2, FileText, FileEdit, FileType, Scale, Calendar, Check, ArrowUp, FolderUp, Trash2, X } from 'lucide-react';
+import { Files, Search, Download, ArrowUpDown, Wand2, FileText, FileEdit, FileType, Scale, Calendar, Check, ArrowUp, FolderUp, Trash2, X, AlertTriangle, AlertCircle, ChevronDown, ChevronUp, Info } from 'lucide-react';
 import { DropZone } from '../components/ui/DropZone';
 import { Button } from '../components/ui/Button';
 import JSZip from 'jszip';
@@ -12,6 +12,7 @@ interface FileItem {
   size: number;
   modifiedDate: Date;
   file: File;
+  specialCharacters?: string[];
 }
 
 export function RenameExpress() {
@@ -22,6 +23,28 @@ export function RenameExpress() {
   const [withText, setWithText] = useState('');
   const [isDownloading, setIsDownloading] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
+
+  const detectSpecialCharacters = (fileName: string): string[] => {
+    const validChars = /[^0-9\-_]/g;
+    const matches = fileName.match(validChars);
+    return matches ? Array.from(new Set(matches)) : [];
+  };
+
+  const validateFileName = (fileName: string): boolean => {
+    const validChars = /^[0-9\-_]+$/;
+    const nameWithoutExt = fileName.split('.')[0];
+    if (!validChars.test(nameWithoutExt)) return false;
+
+    const reservedNames = /^(CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])$/i;
+    if (reservedNames.test(nameWithoutExt)) return false;
+
+    if (fileName.trim() !== fileName) return false;
+
+    if (fileName.endsWith('.')) return false;
+
+    return true;
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,17 +71,25 @@ export function RenameExpress() {
   };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
-    const newFiles = acceptedFiles.map(file => ({
-      id: Math.random().toString(36).substr(2, 9),
-      originalName: file.name,
-      newName: file.name,
-      type: file.type || 'application/octet-stream',
-      size: file.size,
-      modifiedDate: new Date(file.lastModified),
-      file: file
-    }));
+    const newFiles = acceptedFiles.map(file => {
+      const specialChars = detectSpecialCharacters(file.name.split('.')[0]);
+      return {
+        id: Math.random().toString(36).substr(2, 9),
+        originalName: file.name,
+        newName: file.name,
+        type: file.type || 'application/octet-stream',
+        size: file.size,
+        modifiedDate: new Date(file.lastModified),
+        file: file,
+        specialCharacters: specialChars
+      };
+    });
     setFiles(prev => [...prev, ...newFiles]);
     setSelectedFiles(new Set([...selectedFiles, ...newFiles.map(f => f.id)]));
+
+    if (newFiles.some(file => file.specialCharacters && file.specialCharacters.length > 0)) {
+      setShowWarning(true);
+    }
   }, [selectedFiles]);
 
   const toggleFileSelection = (id: string) => {
@@ -88,18 +119,33 @@ export function RenameExpress() {
         return file;
       }
 
-      // Échapper les caractères spéciaux pour qu'ils soient traités littéralement
       const escapedReplaceText = replaceText.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+      const newName = file.newName.replace(new RegExp(escapedReplaceText, 'g'), withText);
+      
+      const nameWithoutExt = newName.split('.')[0];
+      const specialChars = detectSpecialCharacters(nameWithoutExt);
       
       return {
         ...file,
-        newName: file.newName.replace(new RegExp(escapedReplaceText, 'g'), withText)
+        newName,
+        specialCharacters: specialChars
       };
     }));
   };
 
   const handleDownload = async () => {
     if (isDownloading) return;
+    
+    const hasInvalidNames = files.some(file => 
+      selectedFiles.has(file.id) && 
+      !validateFileName(file.newName.split('.')[0])
+    );
+
+    if (hasInvalidNames) {
+      if (!confirm('Certains fichiers contiennent des caractères non autorisés (seuls les chiffres, tiret et underscore sont permis). Voulez-vous continuer ?')) {
+        return;
+      }
+    }
     
     setIsDownloading(true);
     document.body.style.cursor = 'wait';
@@ -173,17 +219,67 @@ export function RenameExpress() {
       </div>
 
       <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-8 border border-gray-200 dark:border-gray-700 shadow-lg">
-        <DropZone
-          onDrop={onDrop}
-          icon={FolderUp}
-          message="Déposez vos fichiers ou dossiers ici"
-          activeMessage="Déposez ici..."
-        />
+        <div className="relative">
+          <DropZone
+            onDrop={onDrop}
+            icon={FolderUp}
+            message="Déposez vos fichiers ou dossiers ici"
+            activeMessage="Déposez ici..."
+          />
+          
+          <div className="absolute top-4 right-4">
+            <div className="relative group">
+              <button
+                onClick={() => setShowWarning(!showWarning)}
+                className="p-2 rounded-full bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                title="Règles de nommage"
+              >
+                <Info className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              </button>
+
+              {showWarning && (
+                <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 z-50">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400">
+                        <AlertTriangle className="w-5 h-5 flex-shrink-0" />
+                        <h3 className="font-medium">Règles de nommage des fichiers</h3>
+                      </div>
+                      <button
+                        onClick={() => setShowWarning(false)}
+                        className="text-gray-400 hover:text-gray-500 dark:text-gray-500 dark:hover:text-gray-400"
+                      >
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <div className="space-y-2 text-sm text-gray-600 dark:text-gray-300">
+                      <p>Caractères autorisés uniquement :</p>
+                      <ul className="list-disc list-inside space-y-1 ml-2">
+                        <li>Chiffres (0-9)</li>
+                        <li>Tiret (-)</li>
+                        <li>Underscore (_)</li>
+                      </ul>
+                      <p className="text-xs text-amber-600 dark:text-amber-400 mt-2">
+                        Les fichiers non conformes seront signalés par une icône ⚠️
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {showWarning && (
+                <div 
+                  className="fixed inset-0 bg-black/20 backdrop-blur-sm z-40"
+                  onClick={() => setShowWarning(false)}
+                ></div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg space-y-6">
         <div className="grid grid-cols-1 gap-6">
-          {/* Filtre et actions */}
           <div className="flex gap-4 items-center">
             <div className="flex-1 relative">
               <input
@@ -222,7 +318,6 @@ export function RenameExpress() {
             </Button>
           </div>
 
-          {/* Outils de renommage */}
           <div className="flex items-center gap-4">
             <div className="flex-1 grid grid-cols-[1fr,1fr,auto] gap-4">
               <div className="relative">
@@ -325,7 +420,7 @@ export function RenameExpress() {
                 filteredFiles.map((file) => (
                   <tr 
                     key={file.id} 
-                    className={`hover:bg-gray-50 dark:hover:bg-gray-700/30 ${
+                    className={`group hover:bg-gray-50 dark:hover:bg-gray-700/30 ${
                       file.originalName !== file.newName 
                         ? 'bg-green-50 dark:bg-green-500/10 hover:bg-green-100 dark:hover:bg-green-500/20' 
                         : ''
@@ -343,11 +438,23 @@ export function RenameExpress() {
                       </div>
                     </td>
                     <td className="px-4 py-3 text-sm text-gray-700 dark:text-gray-300">{file.originalName}</td>
-                    <td className={`px-4 py-3 text-sm ${
-                      file.originalName !== file.newName 
-                        ? 'text-green-600 dark:text-green-400 font-medium' 
-                        : 'text-gray-700 dark:text-gray-300'
-                    }`}>{file.newName}</td>
+                    <td className="px-4 py-3 text-sm relative">
+                      <div className={`flex items-center gap-2 ${
+                        file.originalName !== file.newName 
+                          ? 'text-green-600 dark:text-green-400 font-medium' 
+                          : 'text-gray-700 dark:text-gray-300'
+                      }`}>
+                        <span>{file.newName}</span>
+                        {file.specialCharacters && file.specialCharacters.length > 0 && (
+                          <div className="group/tooltip relative">
+                            <AlertTriangle className="w-4 h-4 text-amber-500" />
+                            <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-2 py-1 bg-amber-50 dark:bg-amber-900/90 text-amber-700 dark:text-amber-200 text-xs rounded shadow-lg opacity-0 group-hover/tooltip:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+                              Caractères non autorisés détectés: {file.specialCharacters.join(' ')}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{file.type}</td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">{formatFileSize(file.size)}</td>
                     <td className="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">

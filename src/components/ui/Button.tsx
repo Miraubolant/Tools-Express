@@ -1,9 +1,10 @@
 import React from 'react';
-import { LucideIcon } from 'lucide-react';
+import { DivideIcon as LucideIcon } from 'lucide-react';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'success' | 'secondary';
   icon?: LucideIcon;
+  iconPosition?: 'left' | 'right';
   isLoading?: boolean;
 }
 
@@ -11,6 +12,7 @@ export function Button({
   children,
   variant = 'primary',
   icon: Icon,
+  iconPosition = 'left',
   isLoading,
   className = '',
   ...props
@@ -23,13 +25,20 @@ export function Button({
     secondary: 'bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200',
   };
 
+  const content = (
+    <>
+      {Icon && iconPosition === 'left' && <Icon className="w-5 h-5" />}
+      {children}
+      {Icon && iconPosition === 'right' && <Icon className="w-5 h-5" />}
+    </>
+  );
+
   return (
     <button
       className={`${baseStyles} ${variants[variant]} ${className}`}
       {...props}
     >
-      {Icon && <Icon className="w-5 h-5" />}
-      {children}
+      {content}
     </button>
   );
 }
