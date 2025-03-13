@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tags, Upload, X, AlertCircle, Download, Hash, Image as ImageIcon, Palette, Grid, Maximize } from 'lucide-react';
+import { Tags, Upload, X, AlertCircle, Download, Hash, Image as ImageIcon, Palette, Grid, Maximize, SlidersHorizontal as ArrowsHorizontal } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { jsPDF } from 'jspdf';
 
@@ -24,6 +24,7 @@ interface GridConfig {
   columns: number;
   rows: number;
   margin: number;
+  spacing: number;
 }
 
 export function TagExpress() {
@@ -45,18 +46,21 @@ export function TagExpress() {
   const [gridConfig, setGridConfig] = useState<GridConfig>({
     columns: 3,
     rows: 8,
-    margin: 10
+    margin: 10,
+    spacing: 2
   });
 
-  // Calculer les dimensions des étiquettes en fonction de la grille
   const calculateLabelDimensions = () => {
-    // A4 dimensions en mm (210 x 297)
     const pageWidth = 210;
     const pageHeight = 297;
-    const margin = gridConfig.margin; // Utiliser la marge configurée
+    const margin = gridConfig.margin;
+    const spacing = gridConfig.spacing;
 
-    const availableWidth = pageWidth - (2 * margin);
-    const availableHeight = pageHeight - (2 * margin);
+    const totalHorizontalSpacing = spacing * (gridConfig.columns - 1);
+    const totalVerticalSpacing = spacing * (gridConfig.rows - 1);
+
+    const availableWidth = pageWidth - (2 * margin) - totalHorizontalSpacing;
+    const availableHeight = pageHeight - (2 * margin) - totalVerticalSpacing;
 
     const labelWidth = availableWidth / gridConfig.columns;
     const labelHeight = availableHeight / gridConfig.rows;
@@ -121,9 +125,9 @@ export function TagExpress() {
       const labelsPerPage = gridConfig.columns * gridConfig.rows;
       const totalPages = Math.ceil(totalLabels / labelsPerPage);
 
-      // Calculer les dimensions des étiquettes
       const { labelWidth, labelHeight } = calculateLabelDimensions();
-      const margin = gridConfig.margin; // Utiliser la marge configurée
+      const margin = gridConfig.margin;
+      const spacing = gridConfig.spacing;
 
       for (let pageNum = 0; pageNum < totalPages; pageNum++) {
         if (pageNum > 0) {
@@ -137,10 +141,9 @@ export function TagExpress() {
           const col = (i % labelsPerPage) % gridConfig.columns;
           const row = Math.floor((i % labelsPerPage) / gridConfig.columns);
 
-          const x = margin + (col * labelWidth);
-          const y = margin + (row * labelHeight);
+          const x = margin + (col * (labelWidth + spacing));
+          const y = margin + (row * (labelHeight + spacing));
 
-          // Ajouter le fond
           if (background.type === 'color') {
             pdf.setFillColor(background.value);
             pdf.rect(x, y, labelWidth, labelHeight, 'F');
@@ -161,11 +164,9 @@ export function TagExpress() {
             }
           }
 
-          // Dessiner le cadre de l'étiquette
           pdf.setDrawColor(200, 200, 200);
           pdf.rect(x, y, labelWidth, labelHeight);
 
-          // Ajouter le logo si présent
           if (studyInfo.logo) {
             try {
               pdf.addImage(
@@ -183,31 +184,26 @@ export function TagExpress() {
             }
           }
 
-          // Configuration du texte
           pdf.setFontSize(8);
           const centerX = x + (labelWidth / 2);
 
-          // Nom de l'étude
           if (studyInfo.name) {
             pdf.setFont('helvetica', 'bold');
             pdf.text(studyInfo.name, centerX, y + (labelHeight * 0.4), { align: 'center' });
           }
 
-          // Référence
           if (studyInfo.orderNumber) {
             pdf.setFont('helvetica', 'normal');
             pdf.setFontSize(6);
             pdf.text(`Réf: ${studyInfo.orderNumber}`, centerX, y + (labelHeight * 0.5), { align: 'center' });
           }
 
-          // Nom de la vente
           if (studyInfo.saleName) {
             pdf.setFont('helvetica', 'normal');
             pdf.setFontSize(6);
             pdf.text(studyInfo.saleName, centerX, y + (labelHeight * 0.6), { align: 'center' });
           }
 
-          // Numéro
           pdf.setFont('helvetica', 'bold');
           pdf.setFontSize(10);
           const lotNumber = lotRange.start + i;
@@ -238,12 +234,19 @@ export function TagExpress() {
     });
   };
 
-  const handleGridChange = (type: 'columns' | 'rows' | 'margin', value: string) => {
+  const handleGridChange = (type: 'columns' | 'rows' | 'margin' | 'spacing', value: string) => {
     const numValue = parseInt(value, 10);
-    if (isNaN(numValue) || numValue < 1) return;
+    if (isNaN(numValue) || numValue < 0) return;
     
-    // Limiter la marge entre 0 et 30mm
-    if (type === 'margin' && (numValue < 0 || numValue > 30)) return;
+    const limits = {
+      columns: { min: 1, max: 5 },
+      rows: { min: 1, max: 12 },
+      margin: { min: 0, max: 30 },
+      spacing: { min: 0, max: 10 }
+    };
+
+    const limit = limits[type];
+    if (numValue < limit.min || numValue > limit.max) return;
 
     setGridConfig(prev => ({
       ...prev,
@@ -264,90 +267,96 @@ export function TagExpress() {
       </div>
 
       <div className="grid md:grid-cols-2 gap-8">
-        {/* Informations de l'étude */}
-        <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg space-y-6">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-emerald-500" />
-            Informations de l'étude (optionnelles)
-          </h3>
-          
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Nom de l'étude
-              </label>
-              <input
-                type="text"
-                value={studyInfo.name}
-                onChange={(e) => setStudyInfo(prev => ({ ...prev, name: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                placeholder="Ex: Étude de Maître Dupont"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Référence Interne
-              </label>
-              <input
-                type="text"
-                value={studyInfo.orderNumber}
-                onChange={(e) => setStudyInfo(prev => ({ ...prev, orderNumber: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                placeholder="Ex: 2024-001"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Nom de la vente
-              </label>
-              <input
-                type="text"
-                value={studyInfo.saleName}
-                onChange={(e) => setStudyInfo(prev => ({ ...prev, saleName: e.target.value }))}
-                className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                placeholder="Ex: Succession Durand"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Plage de numéros de lots
-              </label>
-              <div className="flex items-center gap-4">
+        <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-200 dark:border-gray-700 shadow-lg divide-y divide-gray-200 dark:divide-gray-700">
+          <div className="p-6">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white flex items-center gap-2 mb-6">
+              <AlertCircle className="w-5 h-5 text-emerald-500" />
+              Informations de l'étude
+              <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">(optionnelles)</span>
+            </h3>
+            
+            <div className="space-y-5">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Nom de l'étude
+                </label>
                 <input
-                  type="number"
-                  min="1"
-                  value={lotRange.start}
-                  onChange={(e) => handleRangeChange('start', e.target.value)}
+                  type="text"
+                  value={studyInfo.name}
+                  onChange={(e) => setStudyInfo(prev => ({ ...prev, name: e.target.value }))}
                   className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  placeholder="Début"
-                />
-                <span className="text-gray-500">à</span>
-                <input
-                  type="number"
-                  min={lotRange.start}
-                  value={lotRange.end}
-                  onChange={(e) => handleRangeChange('end', e.target.value)}
-                  className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
-                  placeholder="Fin"
+                  placeholder="Ex: Étude de Maître Dupont"
                 />
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                {gridConfig.columns * gridConfig.rows} étiquettes par page ({gridConfig.columns} colonnes × {gridConfig.rows} lignes)
-              </p>
-            </div>
 
-            {/* Configuration de la grille */}
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-                <Grid className="w-4 h-4 text-emerald-500" />
-                Configuration de la grille
-              </label>
-              <div className="grid grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Référence Interne
+                </label>
+                <input
+                  type="text"
+                  value={studyInfo.orderNumber}
+                  onChange={(e) => setStudyInfo(prev => ({ ...prev, orderNumber: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  placeholder="Ex: 2024-001"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Nom de la vente
+                </label>
+                <input
+                  type="text"
+                  value={studyInfo.saleName}
+                  onChange={(e) => setStudyInfo(prev => ({ ...prev, saleName: e.target.value }))}
+                  className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  placeholder="Ex: Succession Durand"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Plage de numéros de lots
+                </label>
+                <div className="flex items-center gap-4">
+                  <input
+                    type="number"
+                    min="1"
+                    value={lotRange.start}
+                    onChange={(e) => handleRangeChange('start', e.target.value)}
+                    className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                    placeholder="Début"
+                  />
+                  <span className="text-gray-500">à</span>
+                  <input
+                    type="number"
+                    min={lotRange.start}
+                    value={lotRange.end}
+                    onChange={(e) => handleRangeChange('end', e.target.value)}
+                    className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                    placeholder="Fin"
+                  />
+                </div>
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {gridConfig.columns * gridConfig.rows} étiquettes par page ({gridConfig.columns} colonnes × {gridConfig.rows} lignes)
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-6">
+            <div className="space-y-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Grid className="w-5 h-5 text-emerald-500" />
+                <h3 className="text-lg font-medium text-gray-900 dark:text-white">
+                  Configuration de la grille
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Colonnes
                   </label>
                   <input
@@ -359,8 +368,9 @@ export function TagExpress() {
                     className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Lignes
                   </label>
                   <input
@@ -372,9 +382,9 @@ export function TagExpress() {
                     className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1">
-                    <Maximize className="w-3 h-3" />
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
                     Marge (mm)
                   </label>
                   <input
@@ -386,17 +396,30 @@ export function TagExpress() {
                     className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Espacement (mm)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="10"
+                    value={gridConfig.spacing}
+                    onChange={(e) => handleGridChange('spacing', e.target.value)}
+                    className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  />
+                </div>
               </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Limites : 1-5 colonnes, 1-12 lignes, 0-30mm de marge (format A4)
+
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-4 p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+                Limites : 1-5 colonnes, 1-12 lignes, 0-30mm de marge, 0-10mm d'espacement (format A4)
               </p>
             </div>
           </div>
         </div>
 
-        {/* Logo et Fond */}
         <div className="space-y-8">
-          {/* Logo */}
           <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg space-y-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               Logo de l'étude
@@ -440,7 +463,6 @@ export function TagExpress() {
             </div>
           </div>
 
-          {/* Fond */}
           <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg space-y-6">
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               Fond de l'étiquette
@@ -531,7 +553,6 @@ export function TagExpress() {
         </div>
       </div>
 
-      {/* Actions */}
       <div className="flex justify-center">
         <Button
           variant="primary"
@@ -544,14 +565,12 @@ export function TagExpress() {
         </Button>
       </div>
 
-      {/* Aperçu */}
       <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-xl p-6 border border-gray-200 dark:border-gray-700 shadow-lg">
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-6">
           Aperçu
         </h3>
         
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Aperçu de l'étiquette */}
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
               Étiquette individuelle
@@ -591,14 +610,12 @@ export function TagExpress() {
             </div>
           </div>
 
-          {/* Aperçu de la page */}
           <div className="space-y-4">
             <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
               Disposition sur la page
             </h4>
             <div className="flex justify-center">
               <div className="w-[210px] h-[297px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 relative">
-                {/* Visualisation de la marge */}
                 <div 
                   className="absolute inset-0 border-2 border-dashed border-emerald-500/30 pointer-events-none"
                   style={{ 
@@ -606,12 +623,12 @@ export function TagExpress() {
                   }}
                 ></div>
                 
-                {/* Grille d'étiquettes */}
                 <div 
-                  className="grid gap-1 absolute"
+                  className="grid absolute"
                   style={{
                     gridTemplateColumns: `repeat(${gridConfig.columns}, 1fr)`,
                     gridTemplateRows: `repeat(${gridConfig.rows}, 1fr)`,
+                    gap: `${gridConfig.spacing}px`,
                     top: `${gridConfig.margin}px`,
                     left: `${gridConfig.margin}px`,
                     right: `${gridConfig.margin}px`,
@@ -643,7 +660,6 @@ export function TagExpress() {
                   ))}
                 </div>
 
-                {/* Dimensions */}
                 <div className="absolute -right-16 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-gray-400 writing-vertical">
                   297mm
                 </div>
@@ -652,6 +668,8 @@ export function TagExpress() {
                 </div>
                 <div className="absolute -left-12 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-gray-400 transform -rotate-90">
                   Marge: {gridConfig.margin}mm
+                </div>
+                <div className="absolute -right-24 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-gray-400 transform -rotate-90">
                 </div>
               </div>
             </div>
