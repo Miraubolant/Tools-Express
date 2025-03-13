@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tags, Upload, X, AlertCircle, Download, Hash, Image as ImageIcon, Palette, Grid } from 'lucide-react';
+import { Tags, Upload, X, AlertCircle, Download, Hash, Image as ImageIcon, Palette, Grid, Maximize } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { jsPDF } from 'jspdf';
 
@@ -23,6 +23,7 @@ interface Background {
 interface GridConfig {
   columns: number;
   rows: number;
+  margin: number;
 }
 
 export function TagExpress() {
@@ -43,7 +44,8 @@ export function TagExpress() {
   });
   const [gridConfig, setGridConfig] = useState<GridConfig>({
     columns: 3,
-    rows: 8
+    rows: 8,
+    margin: 10
   });
 
   // Calculer les dimensions des étiquettes en fonction de la grille
@@ -51,7 +53,7 @@ export function TagExpress() {
     // A4 dimensions en mm (210 x 297)
     const pageWidth = 210;
     const pageHeight = 297;
-    const margin = 10; // Marge de 10mm sur chaque côté
+    const margin = gridConfig.margin; // Utiliser la marge configurée
 
     const availableWidth = pageWidth - (2 * margin);
     const availableHeight = pageHeight - (2 * margin);
@@ -121,7 +123,7 @@ export function TagExpress() {
 
       // Calculer les dimensions des étiquettes
       const { labelWidth, labelHeight } = calculateLabelDimensions();
-      const margin = 10;
+      const margin = gridConfig.margin; // Utiliser la marge configurée
 
       for (let pageNum = 0; pageNum < totalPages; pageNum++) {
         if (pageNum > 0) {
@@ -236,9 +238,12 @@ export function TagExpress() {
     });
   };
 
-  const handleGridChange = (type: 'columns' | 'rows', value: string) => {
+  const handleGridChange = (type: 'columns' | 'rows' | 'margin', value: string) => {
     const numValue = parseInt(value, 10);
     if (isNaN(numValue) || numValue < 1) return;
+    
+    // Limiter la marge entre 0 et 30mm
+    if (type === 'margin' && (numValue < 0 || numValue > 30)) return;
 
     setGridConfig(prev => ({
       ...prev,
@@ -340,7 +345,7 @@ export function TagExpress() {
                 <Grid className="w-4 h-4 text-emerald-500" />
                 Configuration de la grille
               </label>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-3 gap-4">
                 <div>
                   <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">
                     Colonnes
@@ -367,9 +372,23 @@ export function TagExpress() {
                     className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                   />
                 </div>
+                <div>
+                  <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1 flex items-center gap-1">
+                    <Maximize className="w-3 h-3" />
+                    Marge (mm)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="30"
+                    value={gridConfig.margin}
+                    onChange={(e) => handleGridChange('margin', e.target.value)}
+                    className="w-full h-11 px-4 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                  />
+                </div>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
-                Limites : 1-5 colonnes, 1-12 lignes (format A4)
+                Limites : 1-5 colonnes, 1-12 lignes, 0-30mm de marge (format A4)
               </p>
             </div>
           </div>
@@ -534,7 +553,7 @@ export function TagExpress() {
         <div className="grid md:grid-cols-2 gap-8">
           {/* Aperçu de l'étiquette */}
           <div className="space-y-4">
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
               Étiquette individuelle
             </h4>
             <div className="flex justify-center">
@@ -574,17 +593,29 @@ export function TagExpress() {
 
           {/* Aperçu de la page */}
           <div className="space-y-4">
-            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 text-center">
               Disposition sur la page
             </h4>
             <div className="flex justify-center">
-              <div className="w-[210px] h-[297px] bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 border border-gray-200 dark:border-gray-700 relative">
+              <div className="w-[210px] h-[297px] bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 relative">
+                {/* Visualisation de la marge */}
+                <div 
+                  className="absolute inset-0 border-2 border-dashed border-emerald-500/30 pointer-events-none"
+                  style={{ 
+                    margin: `${gridConfig.margin}px` 
+                  }}
+                ></div>
+                
                 {/* Grille d'étiquettes */}
                 <div 
-                  className="grid gap-1 h-full"
+                  className="grid gap-1 absolute"
                   style={{
                     gridTemplateColumns: `repeat(${gridConfig.columns}, 1fr)`,
-                    gridTemplateRows: `repeat(${gridConfig.rows}, 1fr)`
+                    gridTemplateRows: `repeat(${gridConfig.rows}, 1fr)`,
+                    top: `${gridConfig.margin}px`,
+                    left: `${gridConfig.margin}px`,
+                    right: `${gridConfig.margin}px`,
+                    bottom: `${gridConfig.margin}px`
                   }}
                 >
                   {Array.from({ length: gridConfig.columns * gridConfig.rows }).map((_, index) => (
@@ -618,6 +649,9 @@ export function TagExpress() {
                 </div>
                 <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-xs text-gray-500 dark:text-gray-400">
                   210mm
+                </div>
+                <div className="absolute -left-12 top-1/2 -translate-y-1/2 text-xs text-gray-500 dark:text-gray-400 transform -rotate-90">
+                  Marge: {gridConfig.margin}mm
                 </div>
               </div>
             </div>
