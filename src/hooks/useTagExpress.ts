@@ -124,42 +124,35 @@ export function useTagExpress() {
     setIsGenerating(true);
 
     try {
-      // Créer un nouveau document PDF au format A4
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
 
-      // Dimensions de la page A4 en mm
       const pageWidth = 210;
       const pageHeight = 297;
 
-      // Calculer les dimensions des étiquettes
       const usableWidth = pageWidth - (2 * gridConfig.margin);
       const usableHeight = pageHeight - (2 * gridConfig.margin);
       
       const labelWidth = (usableWidth - (gridConfig.spacing * (gridConfig.columns - 1))) / gridConfig.columns;
       const labelHeight = (usableHeight - (gridConfig.spacing * (gridConfig.rows - 1))) / gridConfig.rows;
 
-      // Calculer le nombre total d'étiquettes et de pages
       const totalLabels = lotRange.end - lotRange.start + 1;
       const labelsPerPage = gridConfig.columns * gridConfig.rows;
       const totalPages = Math.ceil(totalLabels / labelsPerPage);
 
-      // Pour chaque page
       for (let page = 0; page < totalPages; page++) {
         if (page > 0) {
           pdf.addPage();
         }
 
-        // Ajouter un fond de page si nécessaire
         if (background.type === 'color') {
           pdf.setFillColor(background.value);
           pdf.rect(0, 0, pageWidth, pageHeight, 'F');
         }
 
-        // Pour chaque étiquette sur la page
         for (let row = 0; row < gridConfig.rows; row++) {
           for (let col = 0; col < gridConfig.columns; col++) {
             const labelIndex = (page * labelsPerPage) + (row * gridConfig.columns) + col;
@@ -167,15 +160,12 @@ export function useTagExpress() {
 
             if (lotNumber > lotRange.end) continue;
 
-            // Calculer la position de l'étiquette
             const x = gridConfig.margin + (col * (labelWidth + gridConfig.spacing));
             const y = gridConfig.margin + (row * (labelHeight + gridConfig.spacing));
 
-            // Dessiner le fond de l'étiquette
             pdf.setFillColor(255, 255, 255);
             pdf.rect(x, y, labelWidth, labelHeight, 'F');
 
-            // Ajouter le logo si présent
             if (studyInfo.logo) {
               const logoHeight = labelHeight * 0.3;
               pdf.addImage(
@@ -188,38 +178,22 @@ export function useTagExpress() {
               );
             }
 
-            // Configuration des textes
             const startY = studyInfo.logo ? y + (labelHeight * 0.45) : y + (labelHeight * 0.2);
             const lineHeight = labelHeight * 0.12;
 
-            // Ajouter les textes
             pdf.setFontSize(10);
             
-            // Nom de l'étude
-            if (studyInfo.name) {
-              pdf.setTextColor(textColors.title);
-              pdf.setFont('helvetica', 'bold');
-              pdf.text(
-                studyInfo.name,
-                x + (labelWidth / 2),
-                startY,
-                { align: 'center', maxWidth: labelWidth * 0.9 }
-              );
-            }
-
-            // Référence
             if (studyInfo.orderNumber) {
               pdf.setTextColor(textColors.subtitle);
               pdf.setFont('helvetica', 'normal');
               pdf.text(
-                `Réf: ${studyInfo.orderNumber}`,
+                studyInfo.orderNumber,
                 x + (labelWidth / 2),
                 startY + lineHeight,
                 { align: 'center', maxWidth: labelWidth * 0.9 }
               );
             }
 
-            // Nom de la vente
             if (studyInfo.saleName) {
               pdf.setTextColor(textColors.subtitle);
               pdf.setFont('helvetica', 'normal');
@@ -231,7 +205,6 @@ export function useTagExpress() {
               );
             }
 
-            // Numéro de lot
             pdf.setTextColor(textColors.number);
             pdf.setFont('helvetica', 'bold');
             pdf.setFontSize(12);
@@ -245,7 +218,6 @@ export function useTagExpress() {
         }
       }
 
-      // Sauvegarder le PDF
       pdf.save('etiquettes.pdf');
     } catch (error) {
       console.error('Erreur lors de la génération du PDF:', error);
