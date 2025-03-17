@@ -51,12 +51,6 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     objectFit: 'contain',
   },
-  studyName: {
-    fontSize: 10,
-    fontFamily: 'Inter',
-    marginBottom: 2,
-    textAlign: 'center',
-  },
   orderNumber: {
     fontSize: 8,
     fontFamily: 'Inter',
@@ -96,12 +90,9 @@ export const LabelsPDF: React.FC<LabelsPDFProps> = ({ studyInfo, labelCount }) =
                   {studyInfo.logo && (
                     <Image src={studyInfo.logo} style={styles.logo} />
                   )}
-                  {studyInfo.name && (
-                    <Text style={styles.studyName}>{studyInfo.name}</Text>
-                  )}
                   {studyInfo.orderNumber && (
                     <Text style={styles.orderNumber}>
-                      Réf: {studyInfo.orderNumber}
+                      {studyInfo.orderNumber}
                     </Text>
                   )}
                   {studyInfo.saleName && (

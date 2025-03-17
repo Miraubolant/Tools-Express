@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Hash, CalendarDays } from 'lucide-react';
+import { Hash, CalendarDays } from 'lucide-react';
 import { StudyInfo, LotRange, GridConfig } from '../../types/tag-express';
 
 interface StudyInfoSectionProps {
@@ -18,13 +18,6 @@ export function StudyInfoSection({
   gridConfig
 }: StudyInfoSectionProps) {
   const fields = [
-    {
-      id: 'name',
-      label: "Nom de l'étude",
-      placeholder: 'Ex: Étude de Maître Dupont',
-      icon: FileText,
-      value: studyInfo.name
-    },
     {
       id: 'orderNumber',
       label: 'Référence Interne',

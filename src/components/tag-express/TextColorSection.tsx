@@ -9,14 +9,9 @@ interface TextColorSectionProps {
 
 const colorFields = [
   {
-    key: 'title' as keyof TextColors,
-    label: 'Titre',
-    preview: 'Étude de Maître Dupont'
-  },
-  {
     key: 'subtitle' as keyof TextColors,
-    label: 'Sous-titres',
-    preview: 'Réf: 2024-001'
+    label: 'Référence et Vente',
+    preview: '2024-001'
   },
   {
     key: 'number' as keyof TextColors,

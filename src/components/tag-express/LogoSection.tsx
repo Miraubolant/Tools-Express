@@ -21,12 +21,18 @@ export function LogoSection({ studyInfo, handleLogoUpload, removeLogo }: LogoSec
       <div className="flex flex-col items-center">
         {studyInfo.logo ? (
           <div className="relative group">
-            <div className="w-48 h-24 bg-white dark:bg-gray-900 rounded-lg shadow-sm p-3 transition-transform group-hover:scale-[1.02]">
-              <img
-                src={studyInfo.logo}
-                alt="Logo de l'étude"
-                className="w-full h-full object-contain"
-              />
+            <div className="w-48 h-24 bg-white dark:bg-gray-900 rounded-lg shadow-sm overflow-hidden transition-transform group-hover:scale-[1.02]">
+              <div className="w-full h-full flex items-center justify-center p-3">
+                <img
+                  src={studyInfo.logo}
+                  alt="Logo de l'étude"
+                  className="max-w-full max-h-full w-auto h-auto object-contain"
+                  style={{
+                    maxWidth: '142px', // 160px - 2 * padding
+                    maxHeight: '66px'  // 72px - 2 * padding
+                  }}
+                />
+              </div>
             </div>
             <button
               onClick={removeLogo}
@@ -43,6 +49,9 @@ export function LogoSection({ studyInfo, handleLogoUpload, removeLogo }: LogoSec
               <span className="text-sm text-emerald-500 dark:text-emerald-400 font-medium">
                 Ajouter un logo
               </span>
+              <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Format recommandé : 160×72px
+              </span>
               <input
                 type="file"
                 accept="image/*"
@@ -53,6 +62,12 @@ export function LogoSection({ studyInfo, handleLogoUpload, removeLogo }: LogoSec
           </label>
         )}
       </div>
+
+      {studyInfo.logo && (
+        <div className="text-sm text-gray-500 dark:text-gray-400 text-center">
+          Le logo sera automatiquement redimensionné pour s'adapter aux étiquettes
+        </div>
+      )}
     </div>
   );
 }

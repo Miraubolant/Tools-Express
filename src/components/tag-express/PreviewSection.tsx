@@ -71,7 +71,7 @@ export function PreviewSection({
           </div>
           <div className="flex justify-center">
             <div 
-              className={`rounded-lg shadow-lg p-4 flex flex-col items-center justify-center transition-all hover:shadow-xl ${
+              className={`rounded-lg shadow-lg transition-all hover:shadow-xl ${
                 showZoom ? 'w-[420px] h-[222px]' : 'w-[280px] h-[148px]'
               }`}
               style={{
@@ -81,46 +81,44 @@ export function PreviewSection({
                 backgroundPosition: 'center'
               }}
             >
-              {studyInfo.logo && (
-                <div className={`${showZoom ? 'h-12' : 'h-8'} mb-2`}>
-                  <img
-                    src={studyInfo.logo}
-                    alt="Logo"
-                    className="h-full object-contain"
-                  />
+              <div className="w-full h-full flex flex-col items-center justify-center p-4 gap-2">
+                {studyInfo.logo && (
+                  <div className="flex-shrink-0 flex items-center justify-center" style={{ height: showZoom ? '48px' : '32px' }}>
+                    <img
+                      src={studyInfo.logo}
+                      alt="Logo de l'étude"
+                      className="max-w-full max-h-full w-auto h-auto object-contain"
+                      style={{
+                        maxWidth: showZoom ? '200px' : '142px',
+                        maxHeight: showZoom ? '48px' : '32px'
+                      }}
+                    />
+                  </div>
+                )}
+                <div className="flex-1 flex flex-col items-center justify-center gap-1 min-h-0">
+                  {studyInfo.orderNumber && (
+                    <p 
+                      className={showZoom ? 'text-sm' : 'text-xs'}
+                      style={{ color: textColors.subtitle }}
+                    >
+                      {studyInfo.orderNumber}
+                    </p>
+                  )}
+                  {studyInfo.saleName && (
+                    <p 
+                      className={`line-clamp-1 ${showZoom ? 'text-sm' : 'text-xs'}`}
+                      style={{ color: textColors.subtitle }}
+                    >
+                      {studyInfo.saleName}
+                    </p>
+                  )}
+                  <p 
+                    className={`font-bold mt-1 ${showZoom ? 'text-base' : 'text-sm'}`}
+                    style={{ color: textColors.number }}
+                  >
+                    N°{lotRange.start}
+                  </p>
                 </div>
-              )}
-              <div className="text-center space-y-1">
-                {studyInfo.name && (
-                  <p 
-                    className={`font-bold line-clamp-1 ${showZoom ? 'text-base' : 'text-sm'}`}
-                    style={{ color: textColors.title }}
-                  >
-                    {studyInfo.name}
-                  </p>
-                )}
-                {studyInfo.orderNumber && (
-                  <p 
-                    className={showZoom ? 'text-sm' : 'text-xs'}
-                    style={{ color: textColors.subtitle }}
-                  >
-                    Réf: {studyInfo.orderNumber}
-                  </p>
-                )}
-                {studyInfo.saleName && (
-                  <p 
-                    className={`line-clamp-1 ${showZoom ? 'text-sm' : 'text-xs'}`}
-                    style={{ color: textColors.subtitle }}
-                  >
-                    {studyInfo.saleName}
-                  </p>
-                )}
-                <p 
-                  className={`font-bold ${showZoom ? 'text-base' : 'text-sm'}`}
-                  style={{ color: textColors.number }}
-                >
-                  N°{lotRange.start}
-                </p>
               </div>
             </div>
           </div>
