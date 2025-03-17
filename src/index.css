@@ -12,6 +12,19 @@
     @apply bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100;
   }
 
+  /* Scrollbar styles */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-emerald-500/50 hover:bg-emerald-500 rounded-full transition-colors;
+  }
+
   /* Cursor styles */
   * {
     @apply cursor-default;
@@ -92,4 +105,22 @@ button:not(:disabled):hover,
 /* Text selection */
 p, h1, h2, h3, h4, h5, h6, span, div {
   @apply select-text;
+}
+
+/* Animations */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 15s ease infinite;
 }
