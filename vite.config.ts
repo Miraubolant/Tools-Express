@@ -3,25 +3,16 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
-  base: '/',
+  base: './',
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
   server: {
-    headers: {
-      'Content-Type': 'application/javascript',
-      'Access-Control-Allow-Origin': '*'
-    },
     host: true,
-    port: 3000,
-    middlewareMode: false
+    port: 3000
   },
   preview: {
-    port: 3000,
-    headers: {
-      'Content-Type': 'application/javascript',
-      'Access-Control-Allow-Origin': '*'
-    }
+    port: 3000
   },
   build: {
     modulePreload: {
