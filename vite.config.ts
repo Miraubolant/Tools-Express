@@ -9,10 +9,16 @@ export default defineConfig({
   },
   server: {
     host: true,
-    port: 3000
+    port: 3000,
+    headers: {
+      'Content-Type': 'application/javascript',
+    },
   },
   preview: {
-    port: 3000
+    port: 3000,
+    headers: {
+      'Content-Type': 'application/javascript',
+    },
   },
   build: {
     modulePreload: {
