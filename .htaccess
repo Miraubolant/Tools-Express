@@ -1,0 +1,21 @@
+<Files "*.js">
+    ForceType application/javascript
+</Files>
+<Files "*.mjs">
+    ForceType application/javascript
+</Files>
+
+# Enable CORS
+Header set Access-Control-Allow-Origin "*"
+
+# Proper MIME types
+AddType application/javascript .js .mjs
+AddType application/json .json
+
+# Rewrite rules for SPA
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
