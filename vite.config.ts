@@ -8,4 +8,22 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  server: {
+    headers: {
+      'Content-Type': 'application/javascript',
+    },
+  },
+  build: {
+    modulePreload: {
+      polyfill: true
+    },
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+        }
+      }
+    }
+  }
 });
