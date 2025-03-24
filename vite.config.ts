@@ -10,6 +10,7 @@ export default defineConfig({
   server: {
     headers: {
       'Content-Type': 'application/javascript',
+      'Access-Control-Allow-Origin': '*'
     },
     host: true,
     port: 3000,
@@ -19,6 +20,7 @@ export default defineConfig({
     port: 3000,
     headers: {
       'Content-Type': 'application/javascript',
+      'Access-Control-Allow-Origin': '*'
     }
   },
   build: {
@@ -36,8 +38,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         format: 'es',
-        entryFileNames: 'assets/[name].[hash].mjs',
-        chunkFileNames: 'assets/[name].[hash].mjs',
+        entryFileNames: 'assets/[name].[hash].js',
+        chunkFileNames: 'assets/[name].[hash].js',
         assetFileNames: 'assets/[name].[hash][extname]',
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],

@@ -1,16 +1,17 @@
-<Files "*.js">
-    ForceType application/javascript
-</Files>
-<Files "*.mjs">
-    ForceType application/javascript
-</Files>
+# Enable JavaScript modules
+<FilesMatch "\.(js|mjs)$">
+    Header set Content-Type application/javascript
+</FilesMatch>
 
 # Enable CORS
 Header set Access-Control-Allow-Origin "*"
+Header set Access-Control-Allow-Methods "GET, POST, OPTIONS"
+Header set Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range"
 
 # Proper MIME types
 AddType application/javascript .js .mjs
 AddType application/json .json
+AddType text/css .css
 
 # Rewrite rules for SPA
 RewriteEngine On
@@ -19,3 +20,11 @@ RewriteRule ^index\.html$ - [L]
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule . /index.html [L]
+
+# Cache control
+<FilesMatch "\.(js|mjs|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$">
+    Header set Cache-Control "public, max-age=31536000"
+</FilesMatch>
+
+# Compression
+AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript
